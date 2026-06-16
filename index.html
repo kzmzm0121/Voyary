@@ -1,0 +1,1718 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Voyary</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Voyary">
+<meta name="theme-color" content="#141210">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A962;--gold-light:#E8D5A8;--gold-dark:#9A7B3A;
+  --ink:#1A1714;--ink-soft:#3A3530;--sage:#5C7A6B;--burgundy:#8B4545;
+  --bronze:#5C4A38;--bronze-bg:#D4C8BC;--silver:#A8ADB2;
+  --cream:#FDFBF7;--cream-dark:#F5F0E8;
+  --card:#FFFFFF;--border:rgba(26,23,20,0.06);--border2:rgba(26,23,20,0.11);
+  --text1:#1A1714;--text2:#6B6560;--text3:#A39E96;
+  --accent-muted:rgba(201,169,98,0.12);
+  --radius:4px;
+  --shadow:0 1px 3px rgba(26,23,20,0.04),0 8px 24px rgba(26,23,20,0.06);
+  --shadow-lg:0 8px 32px rgba(26,23,20,0.12);
+  --font-d:'Cormorant Garamond','Noto Serif JP',Georgia,serif;
+  --font-b:'DM Sans','Noto Sans JP','Hiragino Sans',sans-serif;
+  --gd:to top right;
+  --grad-box:linear-gradient(var(--gd),#141210 0%,#3A3530 45%,#8A8378 100%);
+  --grad-ink:linear-gradient(var(--gd),#141210 0%,#2C2824 45%,#6A6560 100%);
+}
+body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-height:100vh;-webkit-text-size-adjust:100%;font-weight:500;letter-spacing:0.01em;background-image:linear-gradient(var(--gd),#EDE8DF 0%,#F5F0E8 45%,#FDFBF7 100%);background-attachment:fixed}
+.app-wrap{max-width:680px;margin:0 auto;padding:0 0 100px}
+.header-sticky{position:sticky;top:0;z-index:20}
+
+/* HEADER */
+.header{position:relative;background:var(--grad-box);padding:18px 20px 16px;box-shadow:0 1px 0 rgba(201,169,98,0.35),0 12px 40px rgba(26,23,20,0.35);overflow:hidden}
+.header::before{content:'';position:absolute;inset:0;background:linear-gradient(var(--gd),transparent 35%,rgba(232,213,168,0.2) 100%);pointer-events:none}
+.header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(201,169,98,0.9) 50%,transparent)}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:5px;position:relative;z-index:1}
+.brand-mark{font-family:var(--font-d);font-size:15px;font-weight:600;letter-spacing:0.3em;text-transform:uppercase;color:var(--gold-light);opacity:0.96;display:block}
+.trip-badge{font-size:10px;font-weight:600;padding:4px 10px;background:transparent;color:var(--gold-light);border:1px solid rgba(201,169,98,0.45);letter-spacing:0.14em;text-transform:uppercase;display:inline-flex;align-items:center}
+.trip-badge.ongoing{border-color:rgba(92,122,107,0.7);color:#A8D4BE}
+.trip-badge.done{border-color:rgba(201,169,98,0.7);color:var(--gold-light)}
+.header h1{font-family:var(--font-d);font-size:24px;font-weight:600;color:#FAF8F5;letter-spacing:0.02em;line-height:1.15;position:relative;z-index:1;flex:1}
+.header-sub{font-size:12px;color:rgba(250,248,245,0.7);margin-top:5px;font-weight:500;letter-spacing:0.04em;position:relative;z-index:1}
+
+/* TABS */
+.tabs{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--card);border-bottom:1px solid var(--border);padding:0 8px;-webkit-overflow-scrolling:touch;box-shadow:0 2px 16px rgba(26,23,20,0.04)}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:13px 12px;font-size:12px;font-weight:600;color:var(--text3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all 0.22s;-webkit-tap-highlight-color:transparent;letter-spacing:0.06em;text-transform:uppercase}
+.tab:hover{color:var(--text2)}.tab.active{color:var(--ink);border-bottom-color:var(--gold)}
+
+/* SECTIONS */
+.section{display:none;padding:18px 16px 0}.section.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px 18px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card-label{font-size:10px;font-weight:600;color:var(--gold-dark);text-transform:uppercase;letter-spacing:0.18em;margin-bottom:14px;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.card-label::before{content:'';width:20px;height:1px;background:var(--gold);flex-shrink:0}
+.card-sub{font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:0.12em;margin:14px 0 10px;padding-top:12px;border-top:1px solid var(--border)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 10px;text-align:center;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.stat-val{font-family:var(--font-d);font-size:26px;font-weight:600;color:var(--ink);line-height:1}
+.stat-lbl{font-size:9px;color:var(--text3);margin-top:5px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase}
+.tank-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 10px 14px;text-align:center;box-shadow:var(--shadow);overflow:hidden;position:relative}
+.tank-fill{position:absolute;bottom:0;left:0;right:0;transition:height 0.8s cubic-bezier(0.4,0,0.2,1),background 0.5s;z-index:0;opacity:0.85}
+.tank-val{font-family:var(--font-d);font-size:22px;font-weight:600;color:var(--ink);position:relative;z-index:1;transition:color 0.3s}
+.tank-lbl{font-size:9px;color:var(--text3);margin-top:5px;font-weight:600;position:relative;z-index:1;letter-spacing:0.1em;text-transform:uppercase}
+.tank-complete-badge{display:none;position:absolute;top:6px;right:6px;z-index:2;background:var(--ink);color:var(--gold-light);font-size:8px;font-weight:600;padding:2px 7px;letter-spacing:0.12em;text-transform:uppercase;animation:pop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes pop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.tank-card.complete .tank-complete-badge{display:block}
+.tank-card.complete .tank-val{color:#FAF8F5;font-size:20px}
+.tank-card.complete .tank-lbl{color:rgba(250,248,245,0.75)}
+
+/* MEMBER PROGRESS */
+.member-progress-wrap{margin-bottom:12px;padding:12px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--cream);transition:all 0.3s}
+.member-progress-wrap.complete{border-color:rgba(201,169,98,0.45);background:var(--accent-muted)}
+.member-progress-top{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px}
+.member-name{font-weight:600}
+.member-status{font-size:10px;font-weight:600;padding:3px 9px;letter-spacing:0.04em}
+.member-status.bronze{background:rgba(92,74,56,0.12);color:var(--bronze)}
+.member-status.silver{background:rgba(168,173,178,0.2);color:#7A8085}
+.member-status.gold{background:rgba(201,169,98,0.22);color:var(--gold-dark)}
+.member-progress-bar-wrap{height:8px;overflow:hidden;background:var(--cream-dark)}
+.member-progress-bar{height:100%;transition:width 0.6s cubic-bezier(0.4,0,0.2,1),background 0.3s}
+
+/* INLINE EDITABLE */
+.edit-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;gap:10px}
+.edit-row:last-child{border-bottom:none}
+.edit-key{color:var(--text3);font-weight:500;font-size:11px;letter-spacing:0.04em;flex-shrink:0;min-width:72px}
+.edit-val-wrap{flex:1;display:flex;align-items:center;justify-content:flex-end;gap:6px}
+.ev-text{font-weight:600;color:var(--text1);text-align:right;cursor:pointer;border-bottom:1px dashed transparent;transition:border-color 0.2s;padding:1px 0}
+.ev-text:hover{border-bottom-color:var(--gold)}
+/* inline input/select */
+.ie-input,.ie-select{font-size:13px;font-weight:600;color:var(--text1);font-family:inherit;background:var(--cream);border:1px solid var(--gold);padding:5px 8px;min-width:0;outline:none;-webkit-appearance:none;appearance:none}
+.ie-select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23A39E96'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:22px}
+.ie-save{font-size:10px;font-weight:600;padding:4px 9px;background:var(--ink);color:var(--gold-light);border:none;cursor:pointer;font-family:inherit;letter-spacing:0.06em;text-transform:uppercase;transition:opacity 0.15s;flex-shrink:0}
+.ie-save:hover{opacity:0.8}
+.days-tap{font-family:var(--font-d);font-size:26px;font-weight:600;color:var(--ink);cursor:pointer;border-bottom:none;line-height:1}
+.days-tap:hover{opacity:0.7}
+
+/* INFO ROW (read-only display) */
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-key{color:var(--text3);font-weight:500;font-size:11px;letter-spacing:0.04em;flex-shrink:0;min-width:72px}
+.info-val{font-weight:600;color:var(--text1);text-align:right;flex:1;margin-left:12px}
+
+/* TRANSPORT SECTION */
+.transport-sub{border-top:1px solid var(--border);margin-top:14px;padding-top:14px}
+.transport-sub:first-child{border-top:none;margin-top:0;padding-top:0}
+.transport-sub-title{font-size:11px;font-weight:700;color:var(--gold-dark);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.dir-block{margin-bottom:10px;border:1px solid var(--border);padding:12px 14px;background:var(--cream)}
+.dir-label{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:8px}
+.field-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.field-row:last-child{margin-bottom:0}
+.field-lbl{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.06em;text-transform:uppercase;min-width:52px;flex-shrink:0}
+.field-ctrl{flex:1;min-width:0}
+.field-ctrl .ie-select,.field-ctrl .ie-input{width:100%}
+.time-pair{display:flex;gap:6px;align-items:center;flex:1}
+.time-pair .ie-select{flex:1}
+.time-sep{font-size:11px;color:var(--text3);flex-shrink:0}
+
+/* DAY CARDS */
+.day-card{margin-bottom:12px;border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow);border:1px solid var(--border)}
+.day-header{display:flex;align-items:center;gap:10px;padding:12px 16px;background:var(--grad-ink);border-bottom:1px solid rgba(201,169,98,0.25)}
+.day-weather-inline{display:flex;align-items:center;gap:2px;margin-left:auto;flex-shrink:0}
+.day-num{width:32px;height:32px;background:transparent;border:1px solid rgba(201,169,98,0.5);color:var(--gold-light);display:flex;align-items:center;justify-content:center;font-family:var(--font-d);font-size:15px;font-weight:600;flex-shrink:0}
+.day-title{font-size:14px;font-weight:600;color:#FAF8F5;flex:1;letter-spacing:0.02em}
+.day-body{background:var(--card)}
+.event-row{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:flex-start;flex-wrap:wrap}
+.event-row .row-actions{margin-left:auto;align-self:center}
+.event-row:last-child{border-bottom:none}
+.event-time{font-size:10px;color:var(--text3);min-width:44px;padding-top:3px;font-weight:500;letter-spacing:0.04em}
+.event-dot{width:6px;height:6px;margin-top:5px;flex-shrink:0;transform:rotate(45deg)}
+.event-content{flex:1;min-width:0}
+.event-title{font-size:13px;font-weight:600;letter-spacing:0.01em}
+.event-desc{font-size:11px;color:var(--text3);margin-top:3px;font-weight:400;line-height:1.5}
+.event-map-link{display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--gold-dark);text-decoration:none;margin-top:6px;font-weight:600;border-bottom:1px solid var(--gold-light);letter-spacing:0.06em;text-transform:uppercase}
+.event-synced{font-size:9px;color:var(--text3);margin-top:3px;letter-spacing:0.06em;font-style:italic}
+
+/* CHECKLIST */
+.person-tabs{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+.person-tab{padding:7px 16px;font-size:11px;border:1px solid var(--border2);background:var(--card);cursor:pointer;color:var(--text2);transition:all 0.22s;font-weight:600;font-family:inherit;-webkit-tap-highlight-color:transparent;letter-spacing:0.04em}
+.person-tab.active{background:var(--ink);color:var(--gold-light);border-color:var(--ink)}
+.check-group-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.16em;padding:12px 0 7px}
+.check-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);-webkit-tap-highlight-color:transparent}
+.check-item:last-child{border-bottom:none}
+.checkmark{width:18px;height:18px;border:1px solid var(--border2);background:var(--cream);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.22s;cursor:pointer}
+.checkmark.done{background:var(--ink);border-color:var(--ink)}
+.checkmark.done::after{content:'✓';font-size:10px;color:var(--gold-light);font-weight:600}
+.check-label{font-size:13px;color:var(--text1);flex:1;font-weight:500;cursor:pointer}
+.check-label.done{text-decoration:line-through;color:var(--text3)}
+.check-item-actions{display:flex;gap:4px;flex-shrink:0}
+
+/* BUTTONS */
+.check-edit-btn,.check-del-btn{padding:4px 9px;font-size:10px;font-weight:600;border:1px solid;cursor:pointer;font-family:inherit;transition:all 0.15s;-webkit-tap-highlight-color:transparent;white-space:nowrap;letter-spacing:0.04em;text-transform:uppercase}
+.check-edit-btn{background:transparent;color:var(--text3);border-color:var(--border)}
+.check-edit-btn:hover{background:var(--cream);color:var(--ink);border-color:var(--ink)}
+.check-del-btn{background:transparent;color:var(--burgundy);border-color:rgba(139,69,69,0.3)}
+.check-del-btn:hover{background:rgba(139,69,69,0.08);border-color:var(--burgundy)}
+.row-actions{display:flex;gap:4px;flex-shrink:0;align-items:center}
+
+/* ADD BTN */
+.add-btn{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);background:transparent;border:1px dashed var(--border2);padding:12px 18px;cursor:pointer;width:100%;justify-content:center;transition:all 0.22s;margin-bottom:12px;font-family:inherit;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;-webkit-tap-highlight-color:transparent}
+.add-btn:hover{background:var(--cream);color:var(--ink);border-color:var(--gold);border-style:solid}
+.add-btn-accent{border-style:solid;border-color:var(--gold);color:var(--gold-dark)}
+
+/* INLINE EDIT PANEL */
+.iep{background:var(--cream-dark);border:1px solid var(--border);border-top:2px solid var(--gold);padding:14px;margin-top:4px;animation:slideDown 0.2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.iep .ff{margin-bottom:9px}
+.iep .fl{font-size:10px;font-weight:600;color:var(--text3);margin-bottom:4px;display:block;letter-spacing:0.12em;text-transform:uppercase}
+.iep .fi{width:100%;padding:9px 11px;border:1px solid var(--border2);font-size:13px;background:var(--cream);color:var(--text1);font-family:inherit;font-weight:500;-webkit-appearance:none;appearance:none;outline:none}
+.iep .fi:focus{border-color:var(--gold-dark);background:#fff}
+.iep select.fi{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23A39E96'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.iep-btns{display:flex;gap:7px;justify-content:flex-end;margin-top:10px}
+.iep-save{padding:9px 18px;font-size:10px;font-weight:600;background:var(--ink);color:var(--gold-light);border:none;cursor:pointer;font-family:inherit;letter-spacing:0.1em;text-transform:uppercase}
+.iep-save:hover{opacity:0.85}
+.iep-cancel{padding:9px 18px;font-size:10px;font-weight:600;background:transparent;color:var(--text2);border:1px solid var(--border2);cursor:pointer;font-family:inherit;letter-spacing:0.08em;text-transform:uppercase}
+
+/* BUDGET */
+.budget-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
+.budget-stat{background:var(--card);border:1px solid var(--border);padding:16px;box-shadow:var(--shadow)}
+.budget-stat-lbl{font-size:9px;color:var(--text3);margin-bottom:7px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase}
+.budget-stat-val{font-family:var(--font-d);font-size:24px;font-weight:600}
+.budget-stat-val.over{color:var(--burgundy)}.budget-stat-val.ok{color:var(--sage)}
+.expense-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.expense-row .row-actions{margin-left:auto}
+.expense-row:last-child{border-bottom:none}
+.expense-cat-dot{width:6px;height:6px;flex-shrink:0;transform:rotate(45deg)}
+.expense-info{flex:1;min-width:0}
+.expense-name{font-size:13px;font-weight:600}
+.expense-meta{font-size:11px;color:var(--text3);margin-top:2px;font-weight:400}
+.expense-amount{font-family:var(--font-d);font-size:17px;font-weight:600;flex-shrink:0}
+
+/* HOTEL */
+.hotel-name{font-family:var(--font-d);font-size:20px;font-weight:600;margin-bottom:10px}
+
+/* PHOTOS */
+.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+.photo-thumb{aspect-ratio:1;overflow:hidden;background:var(--cream-dark);cursor:pointer;position:relative;border:1px solid var(--border)}
+.photo-thumb img,.photo-thumb video{width:100%;height:100%;object-fit:cover;transition:transform 0.5s;display:block}
+.photo-thumb:hover img,.photo-thumb:hover video{transform:scale(1.04)}
+.photo-type-badge{position:absolute;top:5px;left:5px;z-index:2;font-size:9px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;background:rgba(26,23,20,0.72);color:#FAF8F5;padding:2px 6px}
+.photo-add-btns{display:flex;flex-direction:column;gap:7px;grid-column:1/-1}
+.photo-add-btn{border:1px dashed var(--border2);background:var(--cream);display:flex;align-items:center;justify-content:center;gap:6px;cursor:pointer;color:var(--text3);font-size:10px;font-weight:600;transition:all 0.22s;padding:14px;-webkit-tap-highlight-color:transparent;letter-spacing:0.08em;text-transform:uppercase;font-family:inherit}
+.photo-add-btn:hover{background:var(--card);color:var(--ink);border-color:var(--gold)}
+.photo-caption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(26,23,20,0.88),transparent);color:#FAF8F5;font-size:10px;font-weight:500;padding:14px 7px 5px;letter-spacing:0.04em}
+
+/* CONTACTS */
+.contact-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.contact-row .row-actions{margin-left:auto}
+.contact-row:last-child{border-bottom:none}
+.contact-info{flex:1;min-width:0}
+.contact-name{font-size:13px;font-weight:600}
+.contact-role{font-size:11px;color:var(--text3);font-weight:400;margin-top:2px}
+.contact-tel{font-size:13px;font-weight:600;color:var(--gold-dark);text-decoration:none;flex-shrink:0}
+
+/* SHARE */
+.share-panel{background:var(--card);border:1px solid var(--border);padding:22px 18px;margin-bottom:14px;box-shadow:var(--shadow);position:relative}
+.share-panel::before{content:'';position:absolute;top:0;left:18px;right:18px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.share-panel-title{font-family:var(--font-d);font-size:20px;font-weight:600;color:var(--ink);margin-bottom:12px}
+.share-url-wrap{display:flex;gap:7px;align-items:stretch;flex-wrap:wrap}
+.share-url-box{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--border);background:var(--cream);font-size:11px;color:var(--text2);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.copy-btn{padding:10px 16px;background:var(--ink);color:var(--gold-light);border:none;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.22s;letter-spacing:0.1em;text-transform:uppercase}
+.copy-btn:hover{background:var(--ink-soft)}.copy-btn.copied{background:var(--sage);color:#fff}
+.share-hint{font-size:11px;color:var(--text3);margin-top:12px;font-weight:400;line-height:1.65}
+
+/* MODAL (写真のみ) */
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(26,23,20,0.6);z-index:200;align-items:flex-end;justify-content:center;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.modal-backdrop.open{display:flex}
+@media(min-width:500px){.modal-backdrop{align-items:center}.modal{border-radius:var(--radius)!important;max-height:85vh!important}}
+.modal{background:var(--card);padding:22px 22px 32px;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);animation:slideUp 0.28s cubic-bezier(0.22,1,0.36,1);border-top:2px solid var(--gold)}
+@keyframes slideUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-handle{width:30px;height:2px;background:var(--border2);margin:0 auto 18px}
+.modal h3{font-family:var(--font-d);font-size:21px;font-weight:600;margin-bottom:18px;color:var(--ink)}
+.form-field{margin-bottom:12px}
+.form-label{font-size:10px;font-weight:600;color:var(--text3);margin-bottom:5px;display:block;letter-spacing:0.12em;text-transform:uppercase}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--border2);font-size:13px;background:var(--cream);color:var(--text1);font-family:inherit;font-weight:500;-webkit-appearance:none;appearance:none;transition:border-color 0.2s,background 0.2s;outline:none}
+.form-input:focus{border-color:var(--gold-dark);background:#fff}
+.form-input::placeholder{color:var(--text3);font-weight:400}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.btn-primary{padding:10px 22px;font-size:10px;font-weight:600;background:var(--ink);color:var(--gold-light);border:none;cursor:pointer;font-family:inherit;transition:all 0.22s;letter-spacing:0.1em;text-transform:uppercase}
+.btn-primary:hover{opacity:0.88}
+.btn-ghost{padding:10px 22px;font-size:10px;font-weight:600;background:transparent;color:var(--text2);border:1px solid var(--border2);cursor:pointer;font-family:inherit;letter-spacing:0.08em;text-transform:uppercase}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+.btn-secondary{display:flex;align-items:center;gap:7px;padding:10px 20px;font-size:10px;font-weight:600;background:var(--cream);color:var(--text1);border:1px solid var(--border2);cursor:pointer;justify-content:center;letter-spacing:0.08em;text-transform:uppercase;font-family:inherit}
+.btn-secondary:hover{border-color:var(--gold)}
+.empty{text-align:center;padding:36px 18px;color:var(--text3);font-size:13px;font-weight:500}
+
+/* PHOTO VIEWER */
+.photo-viewer{display:none;position:fixed;inset:0;background:rgba(26,23,20,0.96);z-index:300;align-items:center;justify-content:center;flex-direction:column}
+.photo-viewer.open{display:flex}
+.photo-viewer-media{max-width:100%;max-height:80vh}
+.photo-viewer-caption{color:rgba(250,248,245,0.8);font-size:13px;margin-top:14px;font-weight:500;letter-spacing:0.04em}
+.photo-viewer-close{position:absolute;top:18px;right:18px;padding:9px 14px;background:transparent;border:1px solid rgba(250,248,245,0.3);color:#FAF8F5;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:0.1em;text-transform:uppercase}
+
+
+/* WEATHER */
+.weather-card{background:var(--card);border:1px solid var(--border);padding:16px 18px;margin-bottom:14px;box-shadow:var(--shadow);border-radius:var(--radius)}
+.weather-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.weather-title{font-size:10px;font-weight:600;color:var(--gold-dark);text-transform:uppercase;letter-spacing:0.18em;display:flex;align-items:center;gap:8px}
+.weather-title::before{content:'';width:20px;height:1px;background:var(--gold);flex-shrink:0}
+.weather-link{font-size:10px;font-weight:600;color:var(--gold-dark);text-decoration:none;border:1px solid rgba(201,169,98,0.4);padding:5px 10px;letter-spacing:0.08em;text-transform:uppercase;transition:all 0.2s;white-space:nowrap}
+.weather-link:hover{background:var(--accent-muted);border-color:var(--gold)}
+.weather-days{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.weather-days::-webkit-scrollbar{display:none}
+.weather-day{flex-shrink:0;text-align:center;background:var(--cream);border:1px solid var(--border);padding:10px 8px;min-width:58px;border-radius:2px}
+.weather-day-label{font-size:10px;color:var(--text3);font-weight:600;letter-spacing:0.04em;margin-bottom:6px}
+.weather-icon{font-size:22px;margin-bottom:4px}
+.weather-temp{font-size:11px;font-weight:700;color:var(--text1)}
+.weather-rain{font-size:10px;color:var(--sage);font-weight:600;margin-top:3px}
+.weather-loading{font-size:12px;color:var(--text3);text-align:center;padding:16px;font-weight:500}
+.weather-error{font-size:11px;color:var(--burgundy);text-align:center;padding:12px;font-weight:500}
+/* search btn */
+.card-label-transport{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.card-label-text{font-size:10px;font-weight:600;color:var(--gold-dark);text-transform:uppercase;letter-spacing:0.18em;display:flex;align-items:center;gap:8px}
+.card-label-text::before{content:'';width:20px;height:1px;background:var(--gold);flex-shrink:0}
+.ht-edit-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;gap:10px}
+.ht-edit-row:last-child{border-bottom:none}
+.ht-key{color:var(--text3);font-weight:500;font-size:11px;letter-spacing:0.04em;flex-shrink:0;min-width:90px}
+.ht-val-wrap{flex:1;display:flex;align-items:center;justify-content:flex-end;gap:6px;flex-wrap:wrap}
+.ht-saved{font-size:10px;font-weight:600;color:var(--sage);letter-spacing:0.06em;opacity:0;transition:opacity 0.5s}
+.search-btn{font-size:10px;font-weight:600;color:var(--gold-dark);text-decoration:none;border:1px solid rgba(201,169,98,0.4);padding:4px 9px;letter-spacing:0.08em;text-transform:uppercase;transition:all 0.2s;white-space:nowrap;cursor:pointer;background:transparent;font-family:inherit}
+.search-btn:hover{background:var(--accent-muted);border-color:var(--gold)}
+/* transport date field */
+.transport-date-row{display:flex;align-items:center;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.transport-date-row .field-lbl{min-width:52px}
+/* day weather inline */
+.day-weather{display:flex;align-items:center;gap:6px;padding:6px 16px 8px;background:rgba(201,169,98,0.04);border-top:1px solid var(--border);font-size:11px;color:var(--text2);font-weight:500}
+.day-weather-icon{font-size:16px}
+.day-weather-rain{color:var(--sage);font-weight:600}
+
+@media(max-width:400px){.tab{padding:11px 9px;font-size:11px}.photo-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="app-wrap">
+<div class="header-sticky">
+<div class="header">
+  <div class="brand-mark" style="margin-bottom:8px">Voyary</div>
+  <div class="header-top">
+    <h1 id="trip-title">沖縄家族旅行 2025</h1>
+    <span class="trip-badge" id="trip-status-badge">計画中</span>
+  </div>
+  <div class="header-sub" id="trip-dates">2025年8月11日 〜 2025年8月15日 · 4泊5日</div>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('overview')">概要</button>
+  <button class="tab" onclick="switchTab('transport')">交通機関</button>
+  <button class="tab" onclick="switchTab('hotel')">宿泊</button>
+  <button class="tab" onclick="switchTab('itinerary')">旅程</button>
+  <button class="tab" onclick="switchTab('checklist')">持ち物</button>
+  <button class="tab" onclick="switchTab('budget')">予算</button>
+  <button class="tab" onclick="switchTab('photos')">思い出</button>
+  <button class="tab" onclick="switchTab('emergency')">緊急</button>
+  <button class="tab" onclick="switchTab('share')">共有</button>
+</div>
+</div>
+
+<!-- ===== OVERVIEW ===== -->
+<div id="sec-overview" class="section active">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="days-tap" id="ov-days-tap" onclick="openDaysPicker()" title="タップして変更">5</div>
+      <div class="stat-lbl">日間</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" id="ov-members">4</div>
+      <div class="stat-lbl">人</div>
+    </div>
+    <div class="tank-card" id="tank-card">
+      <div class="tank-fill" id="tank-fill" style="height:0%"></div>
+      <div class="tank-complete-badge">完了</div>
+      <div class="tank-val" id="ov-check-pct">0%</div>
+      <div class="tank-lbl">準備完了</div>
+    </div>
+  </div>
+  <div id="days-picker-wrap"></div>
+  <div class="card">
+    <div class="card-label">旅行情報</div>
+    <div class="edit-row" id="er-title">
+      <span class="edit-key">旅行名</span>
+      <span class="edit-val-wrap"><span class="ev-text" onclick="startEdit('title')" id="ev-title">沖縄家族旅行 2025</span></span>
+    </div>
+    <div class="edit-row" id="er-dest">
+      <span class="edit-key">目的地</span>
+      <span class="edit-val-wrap"><span class="ev-text" onclick="startEdit('dest')" id="ev-dest">沖縄県</span></span>
+    </div>
+    <div class="edit-row" id="er-dep">
+      <span class="edit-key">出発日</span>
+      <span class="edit-val-wrap"><span class="ev-text" onclick="startEdit('dep')" id="ev-dep">2025年8月11日</span></span>
+    </div>
+    <div class="edit-row" id="er-ret">
+      <span class="edit-key">帰着日</span>
+      <span class="edit-val-wrap"><span class="ev-text" onclick="startEdit('ret')" id="ev-ret">2025年8月15日</span></span>
+    </div>
+    <div class="edit-row" id="er-members">
+      <span class="edit-key">メンバー</span>
+      <span class="edit-val-wrap"><span class="ev-text" onclick="startEdit('members')" id="ev-members">パパ、ママ、太郎、花子</span></span>
+    </div>
+  </div>
+  <div class="weather-card" id="ov-weather-card">
+    <div class="weather-header">
+      <div class="weather-title">天気予報</div>
+      <a class="weather-link" href="https://tenki.jp" target="_blank" rel="noopener">tenki.jpで調べる ↗</a>
+    </div>
+    <div id="ov-weather-body"><div class="weather-loading">天気情報を取得中...</div></div>
+  </div>
+  <div class="card">
+    <div class="card-label">持ち物準備状況</div>
+    <div id="ov-progress-list"></div>
+  </div>
+</div>
+
+<!-- ===== TRANSPORT ===== -->
+<div id="sec-transport" class="section">
+
+  <!-- フライト -->
+  <div class="card">
+    <div class="card-label-transport"><span class="card-label-text">フライト</span><a class="search-btn" href="https://www.google.com/travel/flights" target="_blank" rel="noopener">フライトを調べる ↗</a></div>
+    <div class="dir-label">往路</div>
+    <div class="field-row"><span class="field-lbl">月日</span><span class="field-ctrl" style="display:flex;gap:5px"><select class="ie-select" id="fl-dep-mo" onchange="saveFlightField()" style="flex:1"></select><select class="ie-select" id="fl-dep-day" onchange="saveFlightField()" style="flex:1"></select></span></div>
+    <div class="field-row"><span class="field-lbl">出発空港</span><span class="field-ctrl"><select class="ie-select" id="fl-dep-from" onchange="saveFlightField()"><option value="">選択</option></select></span></div>
+    <div class="field-row"><span class="field-lbl">到着空港</span><span class="field-ctrl"><select class="ie-select" id="fl-dep-to" onchange="saveFlightField()"><option value="">選択</option></select></span></div>
+    <div class="field-row"><span class="field-lbl">便名</span><span class="field-ctrl"><input class="ie-input" id="fl-dep-no" type="text" placeholder="例: JL987" onchange="saveFlightField()" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">時刻</span>
+      <span class="time-pair">
+        <select class="ie-select" id="fl-dep-time" onchange="saveFlightField()"><option value="">出発</option></select>
+        <span class="time-sep">→</span>
+        <select class="ie-select" id="fl-dep-arr" onchange="saveFlightField()"><option value="">到着</option></select>
+      </span>
+    </div>
+    <div style="height:1px;background:var(--border);margin:14px 0"></div>
+    <div class="dir-label">復路</div>
+    <div class="field-row"><span class="field-lbl">月日</span><span class="field-ctrl" style="display:flex;gap:5px"><select class="ie-select" id="fl-ret-mo" onchange="saveFlightField()" style="flex:1"></select><select class="ie-select" id="fl-ret-day" onchange="saveFlightField()" style="flex:1"></select></span></div>
+    <div class="field-row"><span class="field-lbl">出発空港</span><span class="field-ctrl"><select class="ie-select" id="fl-ret-from" onchange="saveFlightField()"><option value="">選択</option></select></span></div>
+    <div class="field-row"><span class="field-lbl">到着空港</span><span class="field-ctrl"><select class="ie-select" id="fl-ret-to" onchange="saveFlightField()"><option value="">選択</option></select></span></div>
+    <div class="field-row"><span class="field-lbl">便名</span><span class="field-ctrl"><input class="ie-input" id="fl-ret-no" type="text" placeholder="例: JL2990" onchange="saveFlightField()" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">時刻</span>
+      <span class="time-pair">
+        <select class="ie-select" id="fl-ret-time" onchange="saveFlightField()"><option value="">出発</option></select>
+        <span class="time-sep">→</span>
+        <select class="ie-select" id="fl-ret-arr" onchange="saveFlightField()"><option value="">到着</option></select>
+      </span>
+    </div>
+  </div>
+
+  <!-- 電車 -->
+  <div class="card">
+    <div class="card-label-transport"><span class="card-label-text">電車</span><a class="search-btn" href="https://transit.yahoo.co.jp" target="_blank" rel="noopener">乗換を調べる ↗</a></div>
+    <div class="dir-label">往路</div>
+    <div class="field-row"><span class="field-lbl">月日</span><span class="field-ctrl" style="display:flex;gap:5px"><select class="ie-select" id="tr-dep-mo" onchange="saveTransport('train','dep','mo')" style="flex:1"></select><select class="ie-select" id="tr-dep-day" onchange="saveTransport('train','dep','day')" style="flex:1"></select></span></div>
+    <div class="field-row"><span class="field-lbl">出発駅</span><span class="field-ctrl"><input class="ie-input" id="tr-dep-from" type="text" placeholder="例: 新大阪" onchange="saveTransport('train','dep','from')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">到着駅</span><span class="field-ctrl"><input class="ie-input" id="tr-dep-to" type="text" placeholder="例: 新神戸" onchange="saveTransport('train','dep','to')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">路線・便名</span><span class="field-ctrl"><input class="ie-input" id="tr-dep-route" type="text" placeholder="例: のぞみ1号" onchange="saveTransport('train','dep','route')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">時刻</span>
+      <span class="time-pair">
+        <select class="ie-select" id="tr-dep-time" onchange="saveTransport('train','dep','time')"><option value="">出発</option></select>
+        <span class="time-sep">→</span>
+        <select class="ie-select" id="tr-dep-arr" onchange="saveTransport('train','dep','arr')"><option value="">到着</option></select>
+      </span>
+    </div>
+    <div class="field-row"><span class="field-lbl">メモ</span><span class="field-ctrl"><input class="ie-input" id="tr-dep-note" type="text" placeholder="座席番号等" onchange="saveTransport('train','dep','note')" style="width:100%"></span></div>
+    <div style="height:1px;background:var(--border);margin:14px 0"></div>
+    <div class="dir-label">復路</div>
+    <div class="field-row"><span class="field-lbl">月日</span><span class="field-ctrl" style="display:flex;gap:5px"><select class="ie-select" id="tr-ret-mo" onchange="saveTransport('train','ret','mo')" style="flex:1"></select><select class="ie-select" id="tr-ret-day" onchange="saveTransport('train','ret','day')" style="flex:1"></select></span></div>
+    <div class="field-row"><span class="field-lbl">出発駅</span><span class="field-ctrl"><input class="ie-input" id="tr-ret-from" type="text" placeholder="例: 新神戸" onchange="saveTransport('train','ret','from')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">到着駅</span><span class="field-ctrl"><input class="ie-input" id="tr-ret-to" type="text" placeholder="例: 新大阪" onchange="saveTransport('train','ret','to')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">路線・便名</span><span class="field-ctrl"><input class="ie-input" id="tr-ret-route" type="text" placeholder="例: のぞみ2号" onchange="saveTransport('train','ret','route')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">時刻</span>
+      <span class="time-pair">
+        <select class="ie-select" id="tr-ret-time" onchange="saveTransport('train','ret','time')"><option value="">出発</option></select>
+        <span class="time-sep">→</span>
+        <select class="ie-select" id="tr-ret-arr" onchange="saveTransport('train','ret','arr')"><option value="">到着</option></select>
+      </span>
+    </div>
+    <div class="field-row"><span class="field-lbl">メモ</span><span class="field-ctrl"><input class="ie-input" id="tr-ret-note" type="text" placeholder="座席番号等" onchange="saveTransport('train','ret','note')" style="width:100%"></span></div>
+  </div>
+
+  <!-- バス -->
+  <div class="card">
+    <div class="card-label-transport"><span class="card-label-text">バス</span><a class="search-btn" href="https://www.kosokubus.com" target="_blank" rel="noopener">バスを調べる ↗</a></div>
+    <div class="dir-label">往路</div>
+    <div class="field-row"><span class="field-lbl">月日</span><span class="field-ctrl" style="display:flex;gap:5px"><select class="ie-select" id="bs-dep-mo" onchange="saveTransport('bus','dep','mo')" style="flex:1"></select><select class="ie-select" id="bs-dep-day" onchange="saveTransport('bus','dep','day')" style="flex:1"></select></span></div>
+    <div class="field-row"><span class="field-lbl">出発停留所</span><span class="field-ctrl"><input class="ie-input" id="bs-dep-from" type="text" placeholder="例: 大阪梅田" onchange="saveTransport('bus','dep','from')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">到着停留所</span><span class="field-ctrl"><input class="ie-input" id="bs-dep-to" type="text" placeholder="例: なんば" onchange="saveTransport('bus','dep','to')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">路線・便名</span><span class="field-ctrl"><input class="ie-input" id="bs-dep-route" type="text" placeholder="例: 空港リムジン" onchange="saveTransport('bus','dep','route')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">時刻</span>
+      <span class="time-pair">
+        <select class="ie-select" id="bs-dep-time" onchange="saveTransport('bus','dep','time')"><option value="">出発</option></select>
+        <span class="time-sep">→</span>
+        <select class="ie-select" id="bs-dep-arr" onchange="saveTransport('bus','dep','arr')"><option value="">到着</option></select>
+      </span>
+    </div>
+    <div class="field-row"><span class="field-lbl">メモ</span><span class="field-ctrl"><input class="ie-input" id="bs-dep-note" type="text" placeholder="乗り場・番号等" onchange="saveTransport('bus','dep','note')" style="width:100%"></span></div>
+    <div style="height:1px;background:var(--border);margin:14px 0"></div>
+    <div class="dir-label">復路</div>
+    <div class="field-row"><span class="field-lbl">月日</span><span class="field-ctrl" style="display:flex;gap:5px"><select class="ie-select" id="bs-ret-mo" onchange="saveTransport('bus','ret','mo')" style="flex:1"></select><select class="ie-select" id="bs-ret-day" onchange="saveTransport('bus','ret','day')" style="flex:1"></select></span></div>
+    <div class="field-row"><span class="field-lbl">出発停留所</span><span class="field-ctrl"><input class="ie-input" id="bs-ret-from" type="text" placeholder="例: なんば" onchange="saveTransport('bus','ret','from')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">到着停留所</span><span class="field-ctrl"><input class="ie-input" id="bs-ret-to" type="text" placeholder="例: 大阪梅田" onchange="saveTransport('bus','ret','to')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">路線・便名</span><span class="field-ctrl"><input class="ie-input" id="bs-ret-route" type="text" placeholder="例: 空港リムジン" onchange="saveTransport('bus','ret','route')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">時刻</span>
+      <span class="time-pair">
+        <select class="ie-select" id="bs-ret-time" onchange="saveTransport('bus','ret','time')"><option value="">出発</option></select>
+        <span class="time-sep">→</span>
+        <select class="ie-select" id="bs-ret-arr" onchange="saveTransport('bus','ret','arr')"><option value="">到着</option></select>
+      </span>
+    </div>
+    <div class="field-row"><span class="field-lbl">メモ</span><span class="field-ctrl"><input class="ie-input" id="bs-ret-note" type="text" placeholder="乗り場・番号等" onchange="saveTransport('bus','ret','note')" style="width:100%"></span></div>
+  </div>
+
+  <!-- 自動車 -->
+  <div class="card">
+    <div class="card-label-transport"><span class="card-label-text">自動車</span><a class="search-btn" href="https://www.driveplaza.com" target="_blank" rel="noopener">ドライブを調べる ↗</a></div>
+    <div class="dir-label">往路</div>
+    <div class="field-row"><span class="field-lbl">月日</span><span class="field-ctrl" style="display:flex;gap:5px"><select class="ie-select" id="cr-dep-mo" onchange="saveTransport('car','dep','mo')" style="flex:1"></select><select class="ie-select" id="cr-dep-day" onchange="saveTransport('car','dep','day')" style="flex:1"></select></span></div>
+    <div class="field-row"><span class="field-lbl">出発地</span><span class="field-ctrl"><input class="ie-input" id="cr-dep-from" type="text" placeholder="例: 自宅" onchange="saveTransport('car','dep','from')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">目的地</span><span class="field-ctrl"><input class="ie-input" id="cr-dep-to" type="text" placeholder="例: 那覇空港" onchange="saveTransport('car','dep','to')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">時刻</span>
+      <span class="time-pair">
+        <select class="ie-select" id="cr-dep-time" onchange="saveTransport('car','dep','time')"><option value="">出発</option></select>
+        <span class="time-sep">→</span>
+        <select class="ie-select" id="cr-dep-arr" onchange="saveTransport('car','dep','arr')"><option value="">到着</option></select>
+      </span>
+    </div>
+    <div class="field-row"><span class="field-lbl">メモ</span><span class="field-ctrl"><input class="ie-input" id="cr-dep-note" type="text" placeholder="駐車場・料金等" onchange="saveTransport('car','dep','note')" style="width:100%"></span></div>
+    <div style="height:1px;background:var(--border);margin:14px 0"></div>
+    <div class="dir-label">復路</div>
+    <div class="field-row"><span class="field-lbl">月日</span><span class="field-ctrl" style="display:flex;gap:5px"><select class="ie-select" id="cr-ret-mo" onchange="saveTransport('car','ret','mo')" style="flex:1"></select><select class="ie-select" id="cr-ret-day" onchange="saveTransport('car','ret','day')" style="flex:1"></select></span></div>
+    <div class="field-row"><span class="field-lbl">出発地</span><span class="field-ctrl"><input class="ie-input" id="cr-ret-from" type="text" placeholder="例: 那覇空港" onchange="saveTransport('car','ret','from')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">目的地</span><span class="field-ctrl"><input class="ie-input" id="cr-ret-to" type="text" placeholder="例: 自宅" onchange="saveTransport('car','ret','to')" style="width:100%"></span></div>
+    <div class="field-row"><span class="field-lbl">時刻</span>
+      <span class="time-pair">
+        <select class="ie-select" id="cr-ret-time" onchange="saveTransport('car','ret','time')"><option value="">出発</option></select>
+        <span class="time-sep">→</span>
+        <select class="ie-select" id="cr-ret-arr" onchange="saveTransport('car','ret','arr')"><option value="">到着</option></select>
+      </span>
+    </div>
+    <div class="field-row"><span class="field-lbl">メモ</span><span class="field-ctrl"><input class="ie-input" id="cr-ret-note" type="text" placeholder="駐車場・料金等" onchange="saveTransport('car','ret','note')" style="width:100%"></span></div>
+  </div>
+
+  <button class="add-btn" onclick="openAddTransport()">+ 交通機関を追加</button>
+
+</div><!-- /sec-transport -->
+
+<!-- ===== HOTEL ===== -->
+<div id="sec-hotel" class="section">
+  <div id="hotels-list"></div>
+  <button class="add-btn" onclick="openAddHotel()">+ 宿泊先を追加</button>
+</div>
+
+<!-- ===== ITINERARY ===== -->
+<div id="sec-itinerary" class="section">
+  <div id="days-list"></div>
+  <button class="add-btn" onclick="openAddEvent()">+ 予定を追加</button>
+</div>
+
+<!-- ===== CHECKLIST ===== -->
+<div id="sec-checklist" class="section">
+  <div class="person-tabs" id="person-tabs"></div>
+  <div class="card"><div id="checklist-body"></div></div>
+  <button class="add-btn" onclick="openAddItem()">+ 持ち物を追加</button>
+</div>
+
+<!-- ===== BUDGET ===== -->
+<div id="sec-budget" class="section">
+  <div class="budget-summary">
+    <div class="budget-stat"><div class="budget-stat-lbl">予算合計</div><div class="budget-stat-val" id="bud-total">¥0</div></div>
+    <div class="budget-stat"><div class="budget-stat-lbl">支出合計</div><div class="budget-stat-val" id="bud-spent">¥0</div></div>
+    <div class="budget-stat"><div class="budget-stat-lbl">残り予算</div><div class="budget-stat-val" id="bud-remain">¥0</div></div>
+    <div class="budget-stat"><div class="budget-stat-lbl">支出件数</div><div class="budget-stat-val" id="bud-count">0件</div></div>
+  </div>
+  <div class="card"><div class="card-label">支出一覧</div><div id="expenses-list"></div></div>
+  <button class="add-btn" onclick="openAddExpense()">+ 支出を追加</button>
+  <button class="add-btn add-btn-accent" onclick="openSetBudget()">予算を設定</button>
+</div>
+
+<!-- ===== PHOTOS ===== -->
+<div id="sec-photos" class="section">
+  <div class="photo-grid" id="photo-grid"></div>
+  <input type="file" id="photo-input" accept="image/*,video/*" style="display:none" multiple onchange="handlePhotoUpload(event)">
+</div>
+
+<!-- ===== EMERGENCY ===== -->
+<div id="sec-emergency" class="section">
+  <div class="card"><div class="card-label">緊急連絡先</div><div id="contacts-list"></div></div>
+  <button class="add-btn" onclick="openAddContact()">+ 連絡先を追加</button>
+</div>
+
+<!-- ===== SHARE ===== -->
+<div id="sec-share" class="section">
+  <div class="share-panel">
+    <div class="share-panel-title">家族で共有</div>
+    <div class="share-url-wrap">
+      <div class="share-url-box" id="share-url-box">このページのURLを共有</div>
+      <button class="copy-btn" id="copy-url-btn" onclick="copyShareUrl()">コピー</button>
+    </div>
+    <div class="share-hint">このHTMLファイルをGoogle Drive、iCloud、Dropbox等にアップロードして共有リンクを送ることで家族全員がアクセスできます。<br><br>スマホのホーム画面に追加すればアプリのように使えます（Safari→「共有」→「ホーム画面に追加」/ Chrome→メニュー→「ホーム画面に追加」）。</div>
+  </div>
+  <div class="card">
+    <div class="card-label">データ管理</div>
+    <div style="display:flex;flex-direction:column;gap:8px;padding-top:4px">
+      <button class="btn-primary" style="width:100%;justify-content:center;display:flex" onclick="exportData()">エクスポート</button>
+      <label class="btn-secondary" style="cursor:pointer">インポート<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
+    </div>
+    <div class="share-hint" style="margin-top:10px">エクスポートしたJSONを家族に共有→インポートでデータを同期できます。</div>
+  </div>
+  <div class="card">
+    <div class="card-label">QRコードで共有</div>
+    <div style="text-align:center;padding:8px 0">
+      <button class="add-btn" onclick="generateQR()" style="margin-bottom:7px">QRコードを生成</button>
+      <div id="qr-output"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /app-wrap -->
+
+<!-- PHOTO VIEWER -->
+<div class="photo-viewer" id="photo-viewer" onclick="if(event.target===this)closePhotoViewer()">
+  <button type="button" class="photo-viewer-close" onclick="closePhotoViewer()">閉じる</button>
+  <img id="photo-viewer-img" class="photo-viewer-media" src="" alt="">
+  <video id="photo-viewer-video" class="photo-viewer-media" controls playsinline style="display:none"></video>
+  <div class="photo-viewer-caption" id="photo-viewer-cap"></div>
+</div>
+
+<!-- 写真モーダル -->
+<div class="modal-backdrop" id="modal-photo">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="modal-photo-title">思い出を追加</h3>
+    <div id="photo-preview-wrap" style="margin-bottom:10px"></div>
+    <div class="form-field"><label class="form-label">キャプション（任意）</label><input type="text" id="ph-caption" class="form-input" placeholder="例: 美ら海水族館！"></div>
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="closeModal('modal-photo')">キャンセル</button>
+      <button class="btn-primary" onclick="savePhoto()">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── AIRPORTS ──
+const AIRPORTS=[
+  '東京（羽田 HND）','東京（成田 NRT）','大阪（伊丹 ITM）','大阪（関西 KIX）','名古屋（中部 NGO）',
+  '札幌（新千歳 CTS）','福岡（FUK）','那覇（OKA）','沖縄（石垣 ISG）','沖縄（宮古 MMY）',
+  '鹿児島（KOJ）','熊本（KMJ）','長崎（NGS）','広島（HIJ）','岡山（OKJ）','高松（TAK）',
+  '松山（MYJ）','高知（KCZ）','徳島（TKS）','仙台（SDJ）','青森（AOJ）','秋田（AXT）',
+  '山形（GAJ）','花巻（HNA）','函館（HKD）','旭川（AKJ）','帯広（OBO）','釧路（KUH）',
+  '女満別（MMB）','中標津（SHB）','奄美（ASJ）','屋久島（KUM）','種子島（TNE）',
+  '与那国（OGN）','多良間（TRA）','波照間（HTR）',
+  'ソウル（仁川 ICN）','ソウル（金浦 GMP）','上海（浦東 PVG）','台北（桃園 TPE）',
+  'バンコク（BKK）','シンガポール（SIN）','ホノルル（HNL）','ロサンゼルス（LAX）',
+  'ニューヨーク（JFK）','パリ（CDG）','ロンドン（LHR）','フランクフルト（FRA）',
+  'その他'
+]
+
+// ── HELPERS ──
+function splitMembers(str){return str.split(/[,、，]/).map(s=>s.trim()).filter(Boolean)}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
+function fmtYen(n){return '¥'+Math.abs(n).toLocaleString()}
+const CAT_COLORS={'交通':'#4A5568','宿泊':'#9A7B3A','食事':'#5C7A6B','観光':'#C9A962','買い物':'#8B4545','その他':'#9A9288'}
+const MAX_MEDIA_MB=80
+function isVideoMedia(p){return p&&(p.type==='video'||(p.mime&&String(p.mime).startsWith('video/')))}
+function normalizeMedia(p){if(!p||!p.src)return null;if(!p.type)p.type=isVideoMedia(p)?'video':'image';return p}
+
+// Generate time options HH:MM every 5 min
+function genTimeOptions(selectedVal){
+  let html='<option value="">---</option>'
+  for(let h=0;h<24;h++){for(let m=0;m<60;m+=5){const t=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;html+=`<option value="${t}"${t===selectedVal?' selected':''}>${t}</option>`}}
+  return html
+}
+function genAirportOptions(selectedVal){
+  return'<option value="">選択してください</option>'+AIRPORTS.map(a=>`<option value="${a}"${a===selectedVal?' selected':''}>${a}</option>`).join('')
+}
+
+// Year/Month/Day options
+function genYearOptions(sel){let h='';for(let y=2024;y<=2030;y++)h+=`<option value="${y}"${y===sel?' selected':''}>${y}年</option>`;return h}
+function genMonthOptions(sel){let h='';for(let m=1;m<=12;m++)h+=`<option value="${m}"${m===sel?' selected':''}>${m}月</option>`;return h}
+function genDayOptions(sel){let h='';for(let d=1;d<=31;d++)h+=`<option value="${d}"${d===sel?' selected':''}>${d}日</option>`;return h}
+
+// Parse "2025年8月11日" → {y,mo,d}
+function parseJpDate(str){
+  const m=str.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/)
+  return m?{y:parseInt(m[1]),mo:parseInt(m[2]),d:parseInt(m[3])}:null
+}
+function toJpDate(y,mo,d){return`${y}年${mo}月${d}日`}
+
+// ── INITIAL CHECKLIST ──
+function buildInitialChecklist(members){
+  if(!members)members=['パパ','ママ','太郎','花子']
+  const r={}
+  members.forEach((m,i)=>{
+    const docs=['パスポート','ビザ','航空券・乗車券','入場チケット','運転免許証','健康保険証','学生証']
+    if(i===0)docs.push('旅行保険証','ホテル予約確認書')
+    r[m]={'書類・チケット':docs,'衣類':['下着','パジャマ','肌着','くつ下','Tシャツ','パンツ','ワンピース','帽子','スニーカー','水着','サンダル','サングラス','着替え'],'洗面・衛生用品':['日焼け止め','歯ブラシセット','タオル・ハンカチ','メガネ・コンタクト用品','ウェットティッシュ','マスク','常備薬','シャンプー・コンディショナー','ボディーソープ','スキンケア品','ヘアセット用品','虫除け対策','洗濯用品','生理用品'],'移動中':['酔い止め','イヤホン','ネックピロー','アイマスク','耳栓','タブレット','おもちゃ'],'その他':['現金','モバイルバッテリー','充電器類','カメラ','映像ケーブル','自撮り棒','傘','レインコート','エコバッグ','のど飴','メモ帳・筆記用具','カラトリー','水筒','お菓子']}
+  })
+  return r
+}
+
+// ── STATE ──
+const STATE={
+  trip:{title:'沖縄家族旅行 2025',dest:'沖縄県',dep:'2025年8月11日',ret:'2025年8月15日',days:5,members:['パパ','ママ','太郎','花子']},
+  transport:{
+    flight:{dep:{mo:'8',day:'11',from:'大阪（伊丹 ITM）',to:'那覇（OKA）',no:'JL987',time:'09:00',arr:'11:20'},ret:{mo:'8',day:'15',from:'那覇（OKA）',to:'大阪（伊丹 ITM）',no:'JL2990',time:'16:40',arr:'18:55'}},
+    train:{dep:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''},ret:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''}},
+    bus:{dep:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''},ret:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''}},
+    car:{dep:{mo:'',day:'',from:'',to:'',time:'',arr:'',note:''},ret:{mo:'',day:'',from:'',to:'',time:'',arr:'',note:''}}
+  },
+  events:{},
+  checklist:buildInitialChecklist(),
+  checked:{},
+  budget:{total:200000,expenses:[
+    {name:'航空券（往復×4）',amount:80000,cat:'交通',date:'8月11日',note:'JL往復'},
+    {name:'レンタカー（5日間）',amount:25000,cat:'交通',date:'8月11日',note:''},
+    {name:'ホテル代（4泊）',amount:60000,cat:'宿泊',date:'8月11日',note:''},
+    {name:'美ら海水族館',amount:6000,cat:'観光',date:'8月12日',note:'家族4名'}
+  ]},
+  hotels:[
+    {name:'ホテル日航那覇グランドキャッスル',addr:'沖縄県那覇市首里金城町1-132-1',cinDate:'2025年8月11日',cinTime:'15:00',coutDate:'2025年8月15日',coutTime:'11:00',tel:'098-886-5454',rsv:'RES-20250811-001',map:'https://maps.google.com/?q=ホテル日航那覇グランドキャッスル',note:'Wi-Fi無料・駐車場あり'}
+  ],
+  photos:[],
+  contacts:[
+    {name:'那覇市立病院',role:'総合病院',tel:'098-884-5111',note:'最寄り総合病院'},
+    {name:'那覇警察署',role:'警察',tel:'098-863-0110',note:''},
+    {name:'在沖縄 旅行保険緊急デスク',role:'保険',tel:'0120-xxx-xxx',note:'24時間対応'}
+  ],
+  activeTab:'overview',activePerson:null,pendingPhotos:[]
+}
+
+// ── TAB ──
+const TAB_ORDER=['overview','transport','hotel','itinerary','checklist','budget','photos','emergency','share']
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'))
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'))
+  const idx=TAB_ORDER.indexOf(tab)
+  if(idx>=0)document.querySelectorAll('.tab')[idx].classList.add('active')
+  const sec=document.getElementById('sec-'+tab)
+  if(sec)sec.classList.add('active')
+  STATE.activeTab=tab
+  renderAll()
+  if(tab==='overview'){renderOverviewWeather()}
+  if(tab==='itinerary'){if(weatherCache)setTimeout(renderDayWeather,50);else fetchWeather().then(()=>{renderDays();renderDayWeather()})}
+}
+
+// ── STATUS BADGE ──
+function updateTripStatus(){
+  const badge=document.getElementById('trip-status-badge');if(!badge)return
+  function parseD(str){const m=parseJpDate(str);return m?new Date(m.y,m.mo-1,m.d):null}
+  const dep=parseD(STATE.trip.dep),ret=parseD(STATE.trip.ret)
+  const today=new Date();today.setHours(0,0,0,0)
+  badge.className='trip-badge'
+  if(ret&&today>ret){badge.textContent='完了';badge.classList.add('done')}
+  else if(dep&&today>=dep){badge.textContent='旅行中';badge.classList.add('ongoing')}
+  else{badge.textContent='計画中'}
+}
+
+// ── INLINE EDIT (overview fields) ──
+let currentEditField=null
+function startEdit(field){
+  if(currentEditField===field){closeEdit();return}
+  closeEdit()
+  currentEditField=field
+  const rowId='er-'+field
+  const row=document.getElementById(rowId)
+  if(!row)return
+  let html=''
+  if(field==='title'){
+    html=`<input class="ie-input" id="ie-${field}" type="text" value="${esc(STATE.trip.title)}" style="width:160px;text-align:right"><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
+  } else if(field==='dest'){
+    html=`<input class="ie-input" id="ie-${field}" type="text" value="${esc(STATE.trip.dest)}" style="width:120px;text-align:right"><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
+  } else if(field==='dep'||field==='ret'){
+    const p=parseJpDate(field==='dep'?STATE.trip.dep:STATE.trip.ret)||{y:2025,mo:8,d:11}
+    html=`<select class="ie-select" id="ie-${field}-y">${genYearOptions(p.y)}</select><select class="ie-select" id="ie-${field}-mo">${genMonthOptions(p.mo)}</select><select class="ie-select" id="ie-${field}-d">${genDayOptions(p.d)}</select><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
+  } else if(field==='members'){
+    html=`<input class="ie-input" id="ie-${field}" type="text" value="${esc(STATE.trip.members.join('、'))}" style="width:180px;text-align:right" placeholder="カンマ・読点区切り"><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
+  }
+  const wrap=row.querySelector('.edit-val-wrap')
+  wrap.innerHTML=html
+  const first=wrap.querySelector('input,select')
+  if(first)first.focus()
+  // close on outside click
+  setTimeout(()=>{
+    document.addEventListener('click',outsideClickHandler,{once:false})
+  },100)
+}
+function outsideClickHandler(e){
+  const rows=['er-title','er-dest','er-dep','er-ret','er-members']
+  if(!rows.some(id=>{const el=document.getElementById(id);return el&&el.contains(e.target)})){
+    closeEdit()
+    document.removeEventListener('click',outsideClickHandler)
+  }
+}
+function closeEdit(){
+  if(!currentEditField)return
+  currentEditField=null
+  renderOverviewFields()
+}
+function saveEdit(field){
+  if(field==='title'){
+    const v=document.getElementById('ie-title')?.value.trim();if(v){STATE.trip.title=v;document.getElementById('trip-title').textContent=v}
+  } else if(field==='dest'){
+    const v=document.getElementById('ie-dest')?.value.trim();if(v)STATE.trip.dest=v
+  } else if(field==='dep'||field==='ret'){
+    const y=document.getElementById(`ie-${field}-y`)?.value
+    const mo=document.getElementById(`ie-${field}-mo`)?.value
+    const d=document.getElementById(`ie-${field}-d`)?.value
+    if(y&&mo&&d){
+      const jd=toJpDate(y,mo,d)
+      if(field==='dep')STATE.trip.dep=jd;else STATE.trip.ret=jd
+      calcDaysFromDates()
+      updateHeaderSub()
+      updateTripStatus()
+      weatherCache=null;weatherDates=[]
+      renderOverviewWeather()
+    }
+  } else if(field==='members'){
+    const v=splitMembers(document.getElementById('ie-members')?.value||'')
+    if(v.length){
+      v.forEach((m,i)=>{if(!STATE.checklist[m]){const docs=['パスポート','ビザ','航空券・乗車券','入場チケット','運転免許証','健康保険証','学生証'];if(i===0)docs.push('旅行保険証','ホテル予約確認書');STATE.checklist[m]={'書類・チケット':docs,'衣類':['下着','肌着','くつ下','Tシャツ','水着','サンダル'],'洗面・衛生用品':['日焼け止め','歯ブラシセット','タオル・ハンカチ'],'移動中':['イヤホン'],'その他':['現金','充電器類']}}})
+      STATE.trip.members=v
+      document.getElementById('ov-members').textContent=v.length
+    }
+  }
+  currentEditField=null
+  // 保存完了フラッシュ: フィールドを更新してから「保存済み」を一瞬表示
+  renderOverviewFields()
+  document.removeEventListener('click',outsideClickHandler)
+  // show saved flash on the relevant row
+  const flashRow=document.getElementById('er-'+field)
+  if(flashRow){
+    const wrap=flashRow.querySelector('.edit-val-wrap')
+    const savedFlash=document.createElement('span')
+    savedFlash.textContent='✓ 保存済み'
+    savedFlash.style.cssText='font-size:10px;font-weight:600;color:var(--sage);letter-spacing:0.06em;margin-left:6px;opacity:1;transition:opacity 0.5s'
+    wrap.appendChild(savedFlash)
+    setTimeout(()=>{savedFlash.style.opacity='0'},1200)
+    setTimeout(()=>{savedFlash.remove()},1800)
+  }
+}
+function updateHeaderSub(){
+  const el=document.getElementById('trip-dates')
+  if(el)el.textContent=`${STATE.trip.dep} 〜 ${STATE.trip.ret} · ${STATE.trip.days-1}泊${STATE.trip.days}日`
+}
+function renderOverviewFields(){
+  const flds=[
+    ['ef-title','ev-title',()=>STATE.trip.title,"startEdit('title')"],
+    ['ef-dest','ev-dest',()=>STATE.trip.dest,"startEdit('dest')"],
+    ['ef-dep','ev-dep',()=>STATE.trip.dep,"startEdit('dep')"],
+    ['ef-ret','ev-ret',()=>STATE.trip.ret,"startEdit('ret')"],
+    ['ef-members','ev-members',()=>STATE.trip.members.join('、'),"startEdit('members')"]
+  ]
+  flds.forEach(([,valId,getVal])=>{const el=document.getElementById(valId);if(el)el.textContent=getVal()})
+}
+
+// ── DAYS PICKER ──
+function openDaysPicker(){
+  const wrap=document.getElementById('days-picker-wrap')
+  if(wrap.innerHTML){wrap.innerHTML='';return}
+  let opts='';for(let i=1;i<=99;i++)opts+=`<option value="${i}"${i===STATE.trip.days?' selected':''}>${i}</option>`
+  wrap.innerHTML=`<div class="iep" style="margin-bottom:12px"><div class="ff"><label class="fl">日数を選択</label><select class="fi" id="days-sel">${opts}</select></div><div class="iep-btns"><button class="iep-cancel" onclick="document.getElementById('days-picker-wrap').innerHTML=''">キャンセル</button><button class="iep-save" onclick="saveDays()">保存</button></div></div>`
+}
+function saveDays(){
+  const v=parseInt(document.getElementById('days-sel').value)
+  if(v){STATE.trip.days=v;document.getElementById('ov-days-tap').textContent=v;updateHeaderSub()}
+  document.getElementById('days-picker-wrap').innerHTML=''
+}
+
+// ── PROGRESS COLORS ──
+function progressColor(pct){
+  const g=(a,b,c)=>`linear-gradient(to top right,${a},${b}${c?','+c:''})`
+  if(pct<=33)return{bar:'#5C4A38',bg:g('#4A3830','#9A8878','#B8A898'),label:'bronze',text:pct+'%'}
+  if(pct<100)return{bar:'#A8ADB2',bg:g('#8A8F94','#C4C8CB','#D8DADC'),label:'silver',text:pct+'%'}
+  return{bar:'#C9A962',bg:g('#9A7B3A','#D4BC6A','#E8D5A8'),label:'gold',text:'完了'}
+}
+
+// ── OVERVIEW ──
+function renderOverview(){
+  updateTripStatus()
+  const members=STATE.trip.members
+  document.getElementById('ov-days-tap').textContent=STATE.trip.days
+  document.getElementById('ov-members').textContent=members.length
+  document.getElementById('trip-title').textContent=STATE.trip.title
+  updateHeaderSub()
+  renderOverviewFields()
+
+  let allT=0,allD=0
+  const prog=document.getElementById('ov-progress-list')
+  prog.innerHTML=members.map(person=>{
+    const cats=STATE.checklist[person]||{};let t=0,d=0
+    for(const[cat,items]of Object.entries(cats)){items.forEach((_,idx)=>{t++;allT++;if(STATE.checked[`${person}:${cat}:${idx}`]){d++;allD++}})}
+    const pp=t>0?Math.round(d/t*100):0,col=progressColor(pp)
+    return`<div class="member-progress-wrap${pp===100?' complete':''}">
+      <div class="member-progress-top"><span class="member-name">${esc(person)}</span><span class="member-status ${col.label}">${col.text}（${d}/${t}）</span></div>
+      <div class="member-progress-bar-wrap"><div class="member-progress-bar" style="width:${pp}%;background:${col.bar}"></div></div>
+    </div>`
+  }).join('')
+
+  const pct=allT>0?Math.round(allD/allT*100):0,col=progressColor(pct)
+  const tf=document.getElementById('tank-fill'),tc=document.getElementById('tank-card'),tv=document.getElementById('ov-check-pct')
+  tf.style.height=pct+'%';tf.style.background=col.bg
+  tv.textContent=pct===100?'完了！':pct+'%'
+  if(pct===100){tc.classList.add('complete');tf.style.background='linear-gradient(to top right,#9A7B3A,#C9A962,#E8D5A8)'}
+  else{tc.classList.remove('complete')}
+}
+
+// ── TRANSPORT ──
+function initTransportFields(){
+  // month/day dropdowns for all types
+  const mdFields=[
+    ['fl-dep-mo','flight','dep','mo'],['fl-dep-day','flight','dep','day'],
+    ['fl-ret-mo','flight','ret','mo'],['fl-ret-day','flight','ret','day'],
+    ['tr-dep-mo','train','dep','mo'],['tr-dep-day','train','dep','day'],
+    ['tr-ret-mo','train','ret','mo'],['tr-ret-day','train','ret','day'],
+    ['bs-dep-mo','bus','dep','mo'],['bs-dep-day','bus','dep','day'],
+    ['bs-ret-mo','bus','ret','mo'],['bs-ret-day','bus','ret','day'],
+    ['cr-dep-mo','car','dep','mo'],['cr-dep-day','car','dep','day'],
+    ['cr-ret-mo','car','ret','mo'],['cr-ret-day','car','ret','day'],
+  ]
+  mdFields.forEach(([id,type,dir,fld])=>{
+    const sel=document.getElementById(id);if(!sel)return
+    const val=parseInt(STATE.transport[type][dir][fld])||0
+    if(fld==='mo')sel.innerHTML=genMonthOptions(val)
+    else sel.innerHTML=genDayOptions(val)
+  })
+  // airport dropdowns
+  ;['fl-dep-from','fl-dep-to','fl-ret-from','fl-ret-to'].forEach(id=>{
+    const sel=document.getElementById(id);if(!sel)return
+    const dir=id.includes('-dep-')?'dep':'ret'
+    const which=id.endsWith('-from')?'from':'to'
+    sel.innerHTML=genAirportOptions(STATE.transport.flight[dir][which])
+  })
+  // time dropdowns
+  const tFields=[
+    ['fl-dep-time','flight','dep','time'],['fl-dep-arr','flight','dep','arr'],
+    ['fl-ret-time','flight','ret','time'],['fl-ret-arr','flight','ret','arr'],
+    ['tr-dep-time','train','dep','time'],['tr-dep-arr','train','dep','arr'],
+    ['tr-ret-time','train','ret','time'],['tr-ret-arr','train','ret','arr'],
+    ['bs-dep-time','bus','dep','time'],['bs-dep-arr','bus','dep','arr'],
+    ['bs-ret-time','bus','ret','time'],['bs-ret-arr','bus','ret','arr'],
+    ['cr-dep-time','car','dep','time'],['cr-dep-arr','car','dep','arr'],
+    ['cr-ret-time','car','ret','time'],['cr-ret-arr','car','ret','arr'],
+  ]
+  tFields.forEach(([id,type,dir,fld])=>{
+    const sel=document.getElementById(id);if(!sel)return
+    sel.innerHTML=genTimeOptions(STATE.transport[type][dir][fld]||'')
+  })
+  // text inputs
+  const textFields=[
+    ['fl-dep-no','flight','dep','no'],['fl-ret-no','flight','ret','no'],
+    ['tr-dep-from','train','dep','from'],['tr-dep-to','train','dep','to'],
+    ['tr-dep-route','train','dep','route'],['tr-dep-note','train','dep','note'],
+    ['tr-ret-from','train','ret','from'],['tr-ret-to','train','ret','to'],
+    ['tr-ret-route','train','ret','route'],['tr-ret-note','train','ret','note'],
+    ['bs-dep-from','bus','dep','from'],['bs-dep-to','bus','dep','to'],
+    ['bs-dep-route','bus','dep','route'],['bs-dep-note','bus','dep','note'],
+    ['bs-ret-from','bus','ret','from'],['bs-ret-to','bus','ret','to'],
+    ['bs-ret-route','bus','ret','route'],['bs-ret-note','bus','ret','note'],
+    ['cr-dep-from','car','dep','from'],['cr-dep-to','car','dep','to'],
+    ['cr-dep-note','car','dep','note'],
+    ['cr-ret-from','car','ret','from'],['cr-ret-to','car','ret','to'],
+    ['cr-ret-note','car','ret','note'],
+  ]
+  textFields.forEach(([id,type,dir,fld])=>{
+    const el=document.getElementById(id);if(el)el.value=STATE.transport[type][dir][fld]||''
+  })
+}
+function saveFlightField(){
+  ;['dep','ret'].forEach(dir=>{
+    STATE.transport.flight[dir].mo=document.getElementById(`fl-${dir}-mo`)?.value||''
+    STATE.transport.flight[dir].day=document.getElementById(`fl-${dir}-day`)?.value||''
+    STATE.transport.flight[dir].from=document.getElementById(`fl-${dir}-from`)?.value||''
+    STATE.transport.flight[dir].to=document.getElementById(`fl-${dir}-to`)?.value||''
+    STATE.transport.flight[dir].no=document.getElementById(`fl-${dir}-no`)?.value||''
+    STATE.transport.flight[dir].time=document.getElementById(`fl-${dir}-time`)?.value||''
+    STATE.transport.flight[dir].arr=document.getElementById(`fl-${dir}-arr`)?.value||''
+  })
+}
+function saveTransport(type,dir,fld){
+  const pfx={'train':'tr','bus':'bs','car':'cr'}[type]
+  const el=document.getElementById(`${pfx}-${dir}-${fld}`)
+  if(el)STATE.transport[type][dir][fld]=el.value
+}
+function openAddTransport(){
+  alert('交通機関の追加は各カードの往路・復路に直接入力してください。\n\n別の交通手段が必要な場合は「旅程」タブで予定として追加できます。')
+}
+
+// ── ITINERARY (with transport/hotel synced events) ──
+function buildItineraryDates(){
+  // generate dates from dep + days
+  const p=parseJpDate(STATE.trip.dep)
+  if(!p)return[]
+  const dates=[]
+  for(let i=0;i<STATE.trip.days;i++){
+    const d=new Date(p.y,p.mo-1,p.d+i)
+    dates.push(`${d.getMonth()+1}月${d.getDate()}日`)
+  }
+  return dates
+}
+
+function getSyncedEvents(){
+  // Build events from transport/hotel data
+  const synced={}
+  const dates=buildItineraryDates()
+  if(!dates.length)return synced
+  const dep=dates[0],ret=dates[dates.length-1]
+
+  const fd=STATE.transport.flight.dep
+  const fr=STATE.transport.flight.ret
+  // helper: find date key by mo/day
+  function findDateKey(mo,day){
+    if(!mo||!day)return null
+    const label=`${parseInt(mo)}月${parseInt(day)}日`
+    return dates.find(d=>d===label)||null
+  }
+  // Flight dep - use stored mo/day
+  const fdDate=findDateKey(fd.mo,fd.day)||dep
+  // Flight ret - use stored mo/day
+  const frDate=findDateKey(fr.mo,fr.day)||ret
+
+  // Re-push flight events to correct dates
+  if(fd.from||fd.time){
+    if(!synced[fdDate])synced[fdDate]=[]
+    synced[fdDate].push({time:fd.time||'--:--',title:`✈ フライト（往路）`,desc:`${fd.from||'?'} → ${fd.to||'?'}${fd.no?' ['+fd.no+']':''}`,color:'#4A5568',map:'',synced:true})
+    if(fd.arr)synced[fdDate].push({time:fd.arr,title:`✈ フライト到着（往路）`,desc:`${fd.to||''}`,color:'#4A5568',map:'',synced:true})
+  }
+  if(fr.from||fr.time){
+    if(!synced[frDate])synced[frDate]=[]
+    synced[frDate].push({time:fr.time||'--:--',title:`✈ フライト（復路）`,desc:`${fr.from||'?'} → ${fr.to||'?'}${fr.no?' ['+fr.no+']':''}`,color:'#4A5568',map:'',synced:true})
+    if(fr.arr)synced[frDate].push({time:fr.arr,title:`✈ フライト到着（復路）`,desc:`${fr.to||''}`,color:'#4A5568',map:'',synced:true})
+  }
+  // Train dep
+  const td=STATE.transport.train.dep
+  const tdDate=findDateKey(td.mo,td.day)||dep
+  if(td.from||td.to||td.route){
+    if(!synced[tdDate])synced[tdDate]=[]
+    const tdDesc=`${td.from||''}${td.to?' → '+td.to:''}${td.route?' ['+td.route+']':''}${td.note?' / '+td.note:''}`
+    synced[tdDate].push({time:td.time||'--:--',title:`🚃 電車（往路）`,desc:tdDesc,color:'#5C7A6B',map:'',synced:true})
+  }
+  const tr2=STATE.transport.train.ret
+  const tr2Date=findDateKey(tr2.mo,tr2.day)||ret
+  if(tr2.from||tr2.to||tr2.route){
+    if(!synced[tr2Date])synced[tr2Date]=[]
+    const tr2Desc=`${tr2.from||''}${tr2.to?' → '+tr2.to:''}${tr2.route?' ['+tr2.route+']':''}${tr2.note?' / '+tr2.note:''}`
+    synced[tr2Date].push({time:tr2.time||'--:--',title:`🚃 電車（復路）`,desc:tr2Desc,color:'#5C7A6B',map:'',synced:true})
+  }
+  const bd=STATE.transport.bus.dep
+  const bdDate=findDateKey(bd.mo,bd.day)||dep
+  if(bd.from||bd.to||bd.route){
+    if(!synced[bdDate])synced[bdDate]=[]
+    const bdDesc=`${bd.from||''}${bd.to?' → '+bd.to:''}${bd.route?' ['+bd.route+']':''}${bd.note?' / '+bd.note:''}`
+    synced[bdDate].push({time:bd.time||'--:--',title:`🚌 バス（往路）`,desc:bdDesc,color:'#9A7B3A',map:'',synced:true})
+  }
+  const br2=STATE.transport.bus.ret
+  const br2Date=findDateKey(br2.mo,br2.day)||ret
+  if(br2.from||br2.to||br2.route){
+    if(!synced[br2Date])synced[br2Date]=[]
+    const br2Desc=`${br2.from||''}${br2.to?' → '+br2.to:''}${br2.route?' ['+br2.route+']':''}${br2.note?' / '+br2.note:''}`
+    synced[br2Date].push({time:br2.time||'--:--',title:`🚌 バス（復路）`,desc:br2Desc,color:'#9A7B3A',map:'',synced:true})
+  }
+  const cd=STATE.transport.car.dep
+  const cdDate=findDateKey(cd.mo,cd.day)||dep
+  if(cd.from||cd.to){
+    if(!synced[cdDate])synced[cdDate]=[]
+    synced[cdDate].push({time:cd.time||'--:--',title:`🚗 自動車（往路）`,desc:`${cd.from||''}${cd.to?' → '+cd.to:''}${cd.note?' / '+cd.note:''}`,color:'#8B4545',map:'',synced:true})
+  }
+  const cr2=STATE.transport.car.ret
+  const cr2Date=findDateKey(cr2.mo,cr2.day)||ret
+  if(cr2.from||cr2.to){
+    if(!synced[cr2Date])synced[cr2Date]=[]
+    synced[cr2Date].push({time:cr2.time||'--:--',title:`🚗 自動車（復路）`,desc:`${cr2.from||''}${cr2.to?' → '+cr2.to:''}${cr2.note?' / '+cr2.note:''}`,color:'#8B4545',map:'',synced:true})
+  }
+  // Hotels: checkin on first date, checkout on last date
+  STATE.hotels.forEach(h=>{
+    const cin=h.cinDate,cout=h.coutDate
+    const cinP=parseJpDate(cin||''),coutP=parseJpDate(cout||'')
+    const cinLabel=cin?(cinP?`${cinP.mo}月${cinP.d}日`:''):'',coutLabel=cout?(coutP?`${coutP.mo}月${coutP.d}日`:''):''
+    // find matching date for checkin
+    dates.forEach(date=>{
+      const dp=date.match(/(\d+)月(\d+)日/)
+      if(dp){
+        if(cinP&&cinP.mo===parseInt(dp[1])&&cinP.d===parseInt(dp[2])){
+          if(!synced[date])synced[date]=[]
+          synced[date].push({time:h.cinTime||'--:--',title:`🏨 チェックイン`,desc:h.name,color:'#C9A962',map:h.map||'',synced:true})
+        }
+        if(coutP&&coutP.mo===parseInt(dp[1])&&coutP.d===parseInt(dp[2])){
+          if(!synced[date])synced[date]=[]
+          synced[date].push({time:h.coutTime||'--:--',title:`🏨 チェックアウト`,desc:h.name,color:'#C9A962',map:h.map||'',synced:true})
+        }
+      }
+    })
+  })
+  return synced
+}
+
+function renderDays(){
+  const container=document.getElementById('days-list')
+  const dates=buildItineraryDates()
+  const synced=getSyncedEvents()
+  container.innerHTML=dates.map((date,i)=>{
+    const userEvents=(STATE.events[date]||[])
+    const syncedEvents=(synced[date]||[])
+    const allEvents=[...syncedEvents,...userEvents].sort((a,b)=>(a.time||'').localeCompare(b.time||''))
+    return`<div class="day-card">
+      <div class="day-header">
+        <div class="day-num">${i+1}</div>
+        <div class="day-title">${i+1}日目 — ${date}</div>
+        <div class="day-weather-inline" id="dw-${i}"></div>
+      </div>
+      <div class="day-body" id="day-body-${i}">
+        ${allEvents.length?allEvents.map((e,ei)=>{
+          const isSync=e.synced
+          return`<div class="event-row"${isSync?' style="background:rgba(201,169,98,0.04)"':''}>
+            <div class="event-time">${esc(e.time)}</div>
+            <div class="event-dot" style="background:${e.color};box-shadow:0 0 0 3px ${e.color}22"></div>
+            <div class="event-content">
+              <div class="event-title">${esc(e.title)}</div>
+              ${e.desc?`<div class="event-desc">${esc(e.desc)}</div>`:''}
+              ${isSync?`<div class="event-synced">← 自動反映</div>`:''}
+              ${e.map?`<a class="event-map-link" href="${esc(e.map)}" target="_blank" rel="noopener">地図を見る</a>`:''}
+            </div>
+            ${!isSync?`<div class="row-actions">
+              <button type="button" class="check-edit-btn" onclick="editEvent('${date}',${userEvents.indexOf(e)},${i})">編集</button>
+              <button type="button" class="check-del-btn" onclick="deleteEvent('${date}',${userEvents.indexOf(e)})">削除</button>
+            </div>`:''}
+          </div>`
+        }).join(''):'<div style="padding:10px 14px;font-size:12px;color:var(--text3);font-weight:500">予定なし</div>'}
+      </div>
+    </div>`
+  }).join('')
+  // Apply weather after DOM is updated
+  if(weatherCache) renderDayWeather()
+}
+
+// ── INLINE PANEL ENGINE ──
+let currentPanel=null
+function closeCurrentPanel(){if(currentPanel){currentPanel.remove();currentPanel=null}}
+function injectPanel(afterEl,contentHtml,saveCb){
+  closeCurrentPanel()
+  const panel=document.createElement('div')
+  panel.className='iep'
+  panel.innerHTML=contentHtml+`<div class="iep-btns"><button type="button" class="iep-cancel">キャンセル</button><button type="button" class="iep-save">保存</button></div>`
+  afterEl.insertAdjacentElement('afterend',panel)
+  currentPanel=panel
+  panel.querySelector('.iep-cancel').onclick=closeCurrentPanel
+  panel.querySelector('.iep-save').onclick=()=>{saveCb(panel);closeCurrentPanel()}
+}
+
+function evPanelHtml(date,ev){
+  const dayOpts=buildItineraryDates().map(d=>`<option value="${d}"${d===date?' selected':''}>${d}</option>`).join('')
+  return`
+    <div class="ff"><label class="fl">日付</label><select class="fi" data-f="day">${dayOpts}</select></div>
+    <div class="ff"><label class="fl">時刻</label><select class="fi" data-f="time">${genTimeOptions(ev?ev.time:'')}</select></div>
+    <div class="ff"><label class="fl">タイトル</label><input class="fi" type="text" data-f="title" value="${esc(ev?ev.title:'')}" placeholder="例: 首里城見学"></div>
+    <div class="ff"><label class="fl">詳細（任意）</label><input class="fi" type="text" data-f="desc" value="${esc(ev?ev.desc||'':'')}" placeholder="メモ"></div>
+    <div class="ff"><label class="fl">地図リンク（任意）</label><input class="fi" type="text" data-f="map" value="${esc(ev?ev.map||'':'')}" placeholder="Google Maps URL"></div>`
+}
+function editEvent(day,ei,di){
+  const rows=document.querySelectorAll(`#day-body-${di} .event-row`)
+  const userEvents=STATE.events[day]||[]
+  const ev=userEvents[ei]
+  // find correct row (skip synced)
+  const syncedCount=(getSyncedEvents()[day]||[]).length
+  const targetRow=rows[syncedCount+ei]
+  if(!targetRow||!ev)return
+  injectPanel(targetRow,evPanelHtml(day,ev),(panel)=>{
+    const newDay=panel.querySelector('[data-f="day"]').value
+    const newEv={time:panel.querySelector('[data-f="time"]').value||'00:00',title:panel.querySelector('[data-f="title"]').value.trim(),desc:panel.querySelector('[data-f="desc"]').value.trim(),map:panel.querySelector('[data-f="map"]').value.trim(),color:ev.color||'#C9A962'}
+    if(!newEv.title){alert('タイトルを入力してください');return}
+    STATE.events[day].splice(ei,1)
+    if(!STATE.events[newDay])STATE.events[newDay]=[]
+    STATE.events[newDay].push(newEv)
+    STATE.events[newDay].sort((a,b)=>a.time.localeCompare(b.time))
+    renderDays()
+  })
+}
+function deleteEvent(day,ei){if(confirm('この予定を削除しますか？')){STATE.events[day].splice(ei,1);renderDays()}}
+function openAddEvent(){
+  closeCurrentPanel()
+  const container=document.getElementById('days-list')
+  const dummy=document.createElement('div')
+  container.appendChild(dummy)
+  injectPanel(dummy,evPanelHtml(buildItineraryDates()[0]||'',null),(panel)=>{
+    const day=panel.querySelector('[data-f="day"]').value
+    const ev={time:panel.querySelector('[data-f="time"]').value||'00:00',title:panel.querySelector('[data-f="title"]').value.trim(),desc:panel.querySelector('[data-f="desc"]').value.trim(),map:panel.querySelector('[data-f="map"]').value.trim(),color:'#C9A962'}
+    if(!ev.title||!day){alert('タイトルと日付を入力してください');return}
+    if(!STATE.events[day])STATE.events[day]=[]
+    STATE.events[day].push(ev)
+    STATE.events[day].sort((a,b)=>a.time.localeCompare(b.time))
+    dummy.remove();renderDays()
+  })
+}
+
+// ── CHECKLIST ──
+function renderPersonTabs(){
+  const tabs=document.getElementById('person-tabs'),members=STATE.trip.members
+  if(!STATE.activePerson||!members.includes(STATE.activePerson))STATE.activePerson=members[0]
+  tabs.innerHTML=members.map(m=>`<button class="person-tab${m===STATE.activePerson?' active':''}" onclick="selectPerson('${esc(m)}')">${esc(m)}</button>`).join('')
+}
+function selectPerson(p){STATE.activePerson=p;renderPersonTabs();renderChecklist()}
+function renderChecklist(){
+  const body=document.getElementById('checklist-body'),person=STATE.activePerson
+  const cats=STATE.checklist[person]||{}
+  let html=''
+  for(const[cat,items]of Object.entries(cats)){
+    html+=`<div class="check-group-label">${esc(cat)}</div>`
+    items.forEach((item,idx)=>{
+      const key=`${person}:${cat}:${idx}`,done=STATE.checked[key]
+      html+=`<div class="check-item">
+        <div class="checkmark${done?' done':''}" onclick="toggleCheck('${key}')"></div>
+        <span class="check-label${done?' done':''}" onclick="toggleCheck('${key}')">${esc(item)}</span>
+        <div class="check-item-actions">
+          <button type="button" class="check-edit-btn" onclick="editItem('${esc(person)}','${esc(cat)}',${idx})">編集</button>
+          <button type="button" class="check-del-btn" onclick="deleteItem('${esc(person)}','${esc(cat)}',${idx})">削除</button>
+        </div>
+      </div>`
+    })
+  }
+  body.innerHTML=html||'<div class="empty">持ち物がありません</div>'
+}
+function toggleCheck(key){STATE.checked[key]=!STATE.checked[key];renderChecklist();renderOverview()}
+function editItem(person,cat,idx){
+  const rows=document.querySelectorAll('#checklist-body .check-item')
+  let counter=0,targetRow=null
+  outer:for(const[c,items]of Object.entries(STATE.checklist[person]||{})){for(let i=0;i<items.length;i++){if(c===cat&&i===idx){targetRow=rows[counter];break outer}counter++}}
+  if(!targetRow)return
+  const pOpts=STATE.trip.members.map(m=>`<option value="${m}"${m===person?' selected':''}>${m}</option>`).join('')
+  const cOpts=['書類・チケット','衣類','洗面・衛生用品','移動中','その他'].map(c=>`<option value="${c}"${c===cat?' selected':''}>${c}</option>`).join('')
+  injectPanel(targetRow,`
+    <div class="ff"><label class="fl">メンバー</label><select class="fi" data-f="person">${pOpts}</select></div>
+    <div class="ff"><label class="fl">カテゴリ</label><select class="fi" data-f="cat">${cOpts}</select></div>
+    <div class="ff"><label class="fl">持ち物名</label><input class="fi" type="text" data-f="name" value="${esc(STATE.checklist[person][cat][idx])}"></div>`,
+  (panel)=>{
+    const np=panel.querySelector('[data-f="person"]').value,nc=panel.querySelector('[data-f="cat"]').value,nn=panel.querySelector('[data-f="name"]').value.trim()
+    if(!nn){alert('持ち物名を入力してください');return}
+    STATE.checklist[person][cat].splice(idx,1)
+    if(STATE.checklist[person][cat].length===0)delete STATE.checklist[person][cat]
+    if(!STATE.checklist[np])STATE.checklist[np]={}
+    if(!STATE.checklist[np][nc])STATE.checklist[np][nc]=[]
+    STATE.checklist[np][nc].push(nn)
+    renderPersonTabs();renderChecklist();renderOverview()
+  })
+}
+function deleteItem(person,cat,idx){
+  if(confirm('この持ち物を削除しますか？')){
+    STATE.checklist[person][cat].splice(idx,1)
+    if(STATE.checklist[person][cat].length===0)delete STATE.checklist[person][cat]
+    renderChecklist();renderOverview()
+  }
+}
+function openAddItem(){
+  closeCurrentPanel()
+  const body=document.getElementById('checklist-body')
+  const dummy=document.createElement('div')
+  body.appendChild(dummy)
+  const pOpts=STATE.trip.members.map(m=>`<option value="${m}"${m===STATE.activePerson?' selected':''}>${m}</option>`).join('')
+  const cOpts=['書類・チケット','衣類','洗面・衛生用品','移動中','その他'].map(c=>`<option value="${c}">${c}</option>`).join('')
+  injectPanel(dummy,`
+    <div class="ff"><label class="fl">メンバー</label><select class="fi" data-f="person">${pOpts}</select></div>
+    <div class="ff"><label class="fl">カテゴリ</label><select class="fi" data-f="cat">${cOpts}</select></div>
+    <div class="ff"><label class="fl">持ち物名</label><input class="fi" type="text" data-f="name" placeholder="持ち物名を入力"></div>`,
+  (panel)=>{
+    const np=panel.querySelector('[data-f="person"]').value,nc=panel.querySelector('[data-f="cat"]').value,nn=panel.querySelector('[data-f="name"]').value.trim()
+    if(!nn){alert('持ち物名を入力してください');return}
+    if(!STATE.checklist[np])STATE.checklist[np]={}
+    if(!STATE.checklist[np][nc])STATE.checklist[np][nc]=[]
+    STATE.checklist[np][nc].push(nn)
+    dummy.remove();renderPersonTabs();renderChecklist();renderOverview()
+  })
+}
+
+// ── BUDGET ──
+function renderBudget(){
+  const total=STATE.budget.total,spent=STATE.budget.expenses.reduce((s,e)=>s+e.amount,0),remain=total-spent
+  document.getElementById('bud-total').textContent=fmtYen(total)
+  document.getElementById('bud-spent').textContent=fmtYen(spent)
+  const rem=document.getElementById('bud-remain')
+  rem.textContent=(remain<0?'−':'')+fmtYen(remain);rem.className='budget-stat-val '+(remain<0?'over':'ok')
+  document.getElementById('bud-count').textContent=STATE.budget.expenses.length+'件'
+  const list=document.getElementById('expenses-list')
+  if(!STATE.budget.expenses.length){list.innerHTML='<div class="empty">支出がありません</div>';return}
+  list.innerHTML=STATE.budget.expenses.map((e,i)=>`
+    <div class="expense-row" id="exp-row-${i}">
+      <div class="expense-cat-dot" style="background:${CAT_COLORS[e.cat]||'#6B7280'}"></div>
+      <div class="expense-info"><div class="expense-name">${esc(e.name)}</div><div class="expense-meta">${esc(e.cat)} · ${esc(e.date)}${e.note?' · '+esc(e.note):''}</div></div>
+      <div class="expense-amount">¥${e.amount.toLocaleString()}</div>
+      <div class="row-actions">
+        <button type="button" class="check-edit-btn" onclick="editExpense(${i})">編集</button>
+        <button type="button" class="check-del-btn" onclick="deleteExpense(${i})">削除</button>
+      </div>
+    </div>`).join('')
+}
+function expPanelHtml(e){
+  const catOpts=['交通','宿泊','食事','観光','買い物','その他'].map(c=>`<option value="${c}"${e&&e.cat===c?' selected':''}>${c}</option>`).join('')
+  const p=e?parseJpDate(e.date.includes('年')?e.date:`2025年${e.date}`):null
+  const yr=STATE.trip.dep.match(/(\d{4})/)?.[1]||'2025'
+  return`
+    <div class="ff"><label class="fl">名前</label><input class="fi" type="text" data-f="name" value="${esc(e?e.name:'')}" placeholder="例: 美ら海水族館 入場料"></div>
+    <div class="ff"><label class="fl">金額（円）</label><input class="fi" type="number" data-f="amount" value="${e?e.amount:''}" min="0"></div>
+    <div class="ff"><label class="fl">カテゴリ</label><select class="fi" data-f="cat">${catOpts}</select></div>
+    <div class="ff"><label class="fl">日付</label><span style="display:flex;gap:5px"><select class="fi" data-f="dmo" style="flex:1">${genMonthOptions(p?p.mo:parseInt(yr+'-01'.split('-')[1]))}</select><select class="fi" data-f="dd" style="flex:1">${genDayOptions(p?p.d:1)}</select></span></div>
+    <div class="ff"><label class="fl">メモ（任意）</label><input class="fi" type="text" data-f="note" value="${esc(e?e.note||'':'')}" placeholder="メモ"></div>`
+}
+function editExpense(i){
+  const row=document.getElementById(`exp-row-${i}`)
+  injectPanel(row,expPanelHtml(STATE.budget.expenses[i]),(panel)=>{
+    const mo=panel.querySelector('[data-f="dmo"]').value,dd=panel.querySelector('[data-f="dd"]').value
+    const exp={name:panel.querySelector('[data-f="name"]').value.trim(),amount:parseInt(panel.querySelector('[data-f="amount"]').value)||0,cat:panel.querySelector('[data-f="cat"]').value,date:`${mo}月${dd}日`,note:panel.querySelector('[data-f="note"]').value.trim()}
+    if(!exp.name){alert('名前を入力してください');return}
+    STATE.budget.expenses[i]=exp;renderBudget()
+  })
+}
+function deleteExpense(i){if(confirm('この支出を削除しますか？')){STATE.budget.expenses.splice(i,1);renderBudget()}}
+function openAddExpense(){
+  closeCurrentPanel()
+  const list=document.getElementById('expenses-list')
+  const dummy=document.createElement('div')
+  list.appendChild(dummy)
+  injectPanel(dummy,expPanelHtml(null),(panel)=>{
+    const mo=panel.querySelector('[data-f="dmo"]').value,dd=panel.querySelector('[data-f="dd"]').value
+    const exp={name:panel.querySelector('[data-f="name"]').value.trim(),amount:parseInt(panel.querySelector('[data-f="amount"]').value)||0,cat:panel.querySelector('[data-f="cat"]').value,date:`${mo}月${dd}日`,note:panel.querySelector('[data-f="note"]').value.trim()}
+    if(!exp.name){alert('名前を入力してください');return}
+    STATE.budget.expenses.push(exp);dummy.remove();renderBudget()
+  })
+}
+function openSetBudget(){
+  closeCurrentPanel()
+  const list=document.getElementById('expenses-list')
+  const dummy=document.createElement('div')
+  list.before(dummy)
+  injectPanel(dummy,`<div class="ff"><label class="fl">総予算（円）</label><input class="fi" type="number" data-f="total" value="${STATE.budget.total}" min="0"></div>`,
+  (panel)=>{STATE.budget.total=parseInt(panel.querySelector('[data-f="total"]').value)||0;renderBudget()})
+  dummy.remove()
+}
+
+// ── HOTELS ──
+// Hotel inline field helper
+function htSavedFlash(rowEl){
+  const wrap=rowEl.querySelector('.ht-val-wrap')
+  if(!wrap)return
+  let fl=wrap.querySelector('.ht-saved')
+  if(!fl){fl=document.createElement('span');fl.className='ht-saved';fl.textContent='✓';wrap.appendChild(fl)}
+  fl.style.opacity='1'
+  setTimeout(()=>{fl.style.opacity='0'},1200)
+}
+function htStartEdit(hi,field){
+  const rowId='ht-'+hi+'-'+field
+  const row=document.getElementById(rowId)
+  if(!row)return
+  const wrap=row.querySelector('.ht-val-wrap')
+  // If already editing this field, cancel
+  if(wrap.querySelector('input,select')){htCancelEdit(hi,field);return}
+  const h=STATE.hotels[hi]
+  const yr=STATE.trip.dep.match(/(\d{4})/)?.[1]||'2025'
+  let inputHtml=''
+  if(field==='name'||field==='addr'||field==='tel'||field==='rsv'||field==='note'||field==='map'){
+    const type=field==='tel'?'tel':'text'
+    const placeholder={name:'ホテル名',addr:'住所',tel:'電話番号',rsv:'予約番号',note:'メモ',map:'Google Maps URL'}[field]||''
+    inputHtml=`<input class="ie-input" style="flex:1;min-width:100px;text-align:right" type="${type}" value="${esc(h[field]||'')}" placeholder="${placeholder}">`
+  } else if(field==='cin'||field==='cout'){
+    const dateStr=field==='cin'?h.cinDate||'':h.coutDate||''
+    const timeVal=field==='cin'?h.cinTime||'':h.coutTime||''
+    const p=parseJpDate(dateStr)
+    inputHtml=`<select class="ie-select">${genMonthOptions(p?p.mo:8)}</select>`+
+      `<select class="ie-select">${genDayOptions(p?p.d:1)}</select>`+
+      `<select class="ie-select">${genTimeOptions(timeVal)}</select>`
+  }
+  const saveBtn=`<button class="ie-save" onclick="htSaveEdit(${hi},'${field}')">保存</button>`
+  wrap.innerHTML=inputHtml+saveBtn
+  const first=wrap.querySelector('input,select')
+  if(first)first.focus()
+}
+function htCancelEdit(hi,field){
+  renderHotelInline(hi)
+}
+function htSaveEdit(hi,field){
+  const row=document.getElementById('ht-'+hi+'-'+field)
+  if(!row)return
+  const wrap=row.querySelector('.ht-val-wrap')
+  const h=STATE.hotels[hi]
+  const yr=STATE.trip.dep.match(/(\d{4})/)?.[1]||'2025'
+  if(field==='name'||field==='addr'||field==='tel'||field==='rsv'||field==='note'||field==='map'){
+    const v=wrap.querySelector('input')?.value.trim()
+    if(v!==undefined)h[field]=v
+  } else if(field==='cin'||field==='cout'){
+    const sels=wrap.querySelectorAll('select')
+    if(sels.length>=3){
+      const mo=sels[0].value,d=sels[1].value,t=sels[2].value
+      if(field==='cin'){h.cinDate=toJpDate(yr,mo,d);h.cinTime=t}
+      else{h.coutDate=toJpDate(yr,mo,d);h.coutTime=t}
+    }
+  }
+  renderHotelInline(hi)
+  // flash saved
+  setTimeout(()=>{
+    const r=document.getElementById('ht-'+hi+'-'+field)
+    if(r)htSavedFlash(r)
+  },30)
+}
+function renderHotelInline(hi){
+  const h=STATE.hotels[hi]
+  const card=document.getElementById('ht-card-'+hi)
+  if(!card)return
+  const fields=[
+    {key:'name',label:'ホテル名',val:()=>h.name||'（未入力）'},
+    {key:'addr',label:'住所',val:()=>h.addr||'—'},
+    {key:'cin',label:'チェックイン',val:()=>(h.cinDate||'—')+' '+(h.cinTime||'')},
+    {key:'cout',label:'チェックアウト',val:()=>(h.coutDate||'—')+' '+(h.coutTime||'')},
+    {key:'tel',label:'電話',val:()=>h.tel||'—'},
+    {key:'rsv',label:'予約番号',val:()=>h.rsv||'—'},
+    {key:'map',label:'地図リンク',val:()=>h.map?'設定済み':'—'},
+    {key:'note',label:'メモ',val:()=>h.note||'—'},
+  ]
+  const rowsHtml=fields.map(f=>`
+    <div class="ht-edit-row" id="ht-${hi}-${f.key}">
+      <span class="ht-key">${f.label}</span>
+      <span class="ht-val-wrap">
+        <span class="ev-text" onclick="htStartEdit(${hi},'${f.key}')" title="タップして編集">${esc(f.val())}</span>
+        <span class="ht-saved"></span>
+      </span>
+    </div>`).join('')
+  const mapLink=h.map?`<a style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--gold-dark);text-decoration:none;margin-top:8px;font-weight:600;border-bottom:1px solid var(--gold-light);letter-spacing:0.06em;text-transform:uppercase" href="${esc(h.map)}" target="_blank" rel="noopener">地図を見る</a>`:''
+  card.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+      <div class="hotel-name">${esc(h.name||'宿泊先')}</div>
+      <button type="button" class="check-del-btn" onclick="deleteHotel(${hi})">削除</button>
+    </div>
+    ${rowsHtml}
+    ${mapLink}`
+}
+function renderHotels(){
+  const container=document.getElementById('hotels-list')
+  if(!STATE.hotels.length){container.innerHTML='<div class="empty">宿泊先が登録されていません</div>';return}
+  container.innerHTML=STATE.hotels.map((_,i)=>`<div class="card" id="ht-card-${i}"></div>`).join('')
+  STATE.hotels.forEach((_,i)=>renderHotelInline(i))
+}
+function deleteHotel(i){if(confirm('この宿泊先を削除しますか？')){STATE.hotels.splice(i,1);renderHotels()}}
+function openAddHotel(){
+  closeCurrentPanel()
+  const container=document.getElementById('hotels-list')
+  const dummy=document.createElement('div')
+  container.appendChild(dummy)
+  // blank hotel
+  const cinP=parseJpDate(STATE.trip.dep)||{y:2025,mo:8,d:11}
+  const coutP=parseJpDate(STATE.trip.ret)||{y:2025,mo:8,d:15}
+  const yr=String(cinP.y)
+  injectPanel(dummy,`
+    <div class="ff"><label class="fl">ホテル名</label><input class="fi" type="text" data-f="name" placeholder="ホテル名"></div>
+    <div class="ff"><label class="fl">住所</label><input class="fi" type="text" data-f="addr" placeholder="住所"></div>
+    <div class="ff"><label class="fl">チェックイン　月・日・時刻</label>
+      <span style="display:flex;gap:5px;flex-wrap:wrap">
+        <select class="fi" data-f="cin-mo" style="flex:1">${genMonthOptions(cinP.mo)}</select>
+        <select class="fi" data-f="cin-d" style="flex:1">${genDayOptions(cinP.d)}</select>
+        <select class="fi" data-f="cin-time" style="flex:1">${genTimeOptions('')}</select>
+      </span>
+    </div>
+    <div class="ff"><label class="fl">チェックアウト　月・日・時刻</label>
+      <span style="display:flex;gap:5px;flex-wrap:wrap">
+        <select class="fi" data-f="cout-mo" style="flex:1">${genMonthOptions(coutP.mo)}</select>
+        <select class="fi" data-f="cout-d" style="flex:1">${genDayOptions(coutP.d)}</select>
+        <select class="fi" data-f="cout-time" style="flex:1">${genTimeOptions('')}</select>
+      </span>
+    </div>
+    <div class="ff"><label class="fl">電話（任意）</label><input class="fi" type="tel" data-f="tel" placeholder="098-xxx-xxxx"></div>
+    <div class="ff"><label class="fl">予約番号（任意）</label><input class="fi" type="text" data-f="rsv" placeholder="予約番号"></div>
+    <div class="ff"><label class="fl">地図リンク（任意）</label><input class="fi" type="text" data-f="map" placeholder="Google Maps URL"></div>
+    <div class="ff"><label class="fl">メモ（任意）</label><input class="fi" type="text" data-f="note" placeholder="Wi-Fiパスワード等"></div>`,
+  (panel)=>{
+    const cinMo=panel.querySelector('[data-f="cin-mo"]').value,cinD=panel.querySelector('[data-f="cin-d"]').value
+    const coutMo=panel.querySelector('[data-f="cout-mo"]').value,coutD=panel.querySelector('[data-f="cout-d"]').value
+    const h={
+      name:panel.querySelector('[data-f="name"]').value.trim(),
+      addr:panel.querySelector('[data-f="addr"]').value.trim(),
+      cinDate:toJpDate(yr,cinMo,cinD),cinTime:panel.querySelector('[data-f="cin-time"]').value,
+      coutDate:toJpDate(yr,coutMo,coutD),coutTime:panel.querySelector('[data-f="cout-time"]').value,
+      tel:panel.querySelector('[data-f="tel"]').value.trim(),
+      rsv:panel.querySelector('[data-f="rsv"]').value.trim(),
+      map:panel.querySelector('[data-f="map"]').value.trim(),
+      note:panel.querySelector('[data-f="note"]').value.trim()
+    }
+    if(!h.name){alert('ホテル名を入力してください');return}
+    STATE.hotels.push(h);dummy.remove();renderHotels()
+  })
+}
+
+// ── PHOTOS ──
+function renderPhotoThumb(p,i){
+  const cap=p.caption?`<div class="photo-caption">${esc(p.caption)}</div>`:''
+  if(isVideoMedia(p))return`<div class="photo-thumb" onclick="viewPhoto(${i})"><video src="${p.src}" muted playsinline preload="metadata"></video><span class="photo-type-badge">動画</span>${cap}</div>`
+  return`<div class="photo-thumb" onclick="viewPhoto(${i})"><img src="${p.src}" alt="${esc(p.caption)}">${cap}</div>`
+}
+function renderPhotos(){
+  STATE.photos=STATE.photos.map(normalizeMedia).filter(Boolean)
+  const grid=document.getElementById('photo-grid')
+  let html=STATE.photos.map((p,i)=>renderPhotoThumb(p,i)).join('')
+  html+=`<div class="photo-add-btns"><button type="button" class="photo-add-btn" onclick="document.getElementById('photo-input').click()">写真・動画を追加</button></div>`
+  grid.innerHTML=html
+}
+function handlePhotoUpload(e){
+  const files=Array.from(e.target.files).filter(f=>f.type.startsWith('image/')||f.type.startsWith('video/'))
+  if(!files.length){e.target.value='';return}
+  if(files.find(f=>f.size>MAX_MEDIA_MB*1024*1024)){alert(`${MAX_MEDIA_MB}MB以下にしてください`);e.target.value='';return}
+  STATE.pendingPhotos=files
+  const file=files[0],isVideo=file.type.startsWith('video/')
+  const reader=new FileReader()
+  reader.onload=ev=>{
+    const wrap=document.getElementById('photo-preview-wrap')
+    if(isVideo)wrap.innerHTML=`<video src="${ev.target.result}" controls playsinline style="width:100%;max-height:200px;background:#1A1714"></video>`
+    else wrap.innerHTML=`<img src="${ev.target.result}" style="width:100%;max-height:200px;object-fit:cover" alt="">`
+    document.getElementById('modal-photo-title').textContent=isVideo?'動画を追加':'写真を追加'
+  }
+  reader.readAsDataURL(file)
+  document.getElementById('ph-caption').value=''
+  document.getElementById('modal-photo').classList.add('open')
+  e.target.value=''
+}
+function savePhoto(){
+  const caption=document.getElementById('ph-caption').value.trim()
+  const files=STATE.pendingPhotos||[];if(!files.length)return
+  let processed=0
+  files.forEach(file=>{
+    const reader=new FileReader()
+    reader.onload=ev=>{
+      STATE.photos.push({type:file.type.startsWith('video/')?'video':'image',mime:file.type,src:ev.target.result,caption:processed===0?caption:''})
+      if(++processed>=files.length){STATE.pendingPhotos=[];document.getElementById('photo-preview-wrap').innerHTML='';closeModal('modal-photo');renderPhotos()}
+    }
+    reader.readAsDataURL(file)
+  })
+}
+function viewPhoto(i){
+  const p=normalizeMedia(STATE.photos[i]);if(!p)return
+  const img=document.getElementById('photo-viewer-img'),vid=document.getElementById('photo-viewer-video')
+  if(isVideoMedia(p)){img.style.display='none';img.removeAttribute('src');vid.style.display='block';vid.src=p.src;vid.load()}
+  else{vid.pause();vid.removeAttribute('src');vid.style.display='none';img.style.display='block';img.src=p.src}
+  document.getElementById('photo-viewer-cap').textContent=p.caption||''
+  document.getElementById('photo-viewer').classList.add('open')
+}
+function closePhotoViewer(){
+  const vid=document.getElementById('photo-viewer-video')
+  vid.pause();vid.removeAttribute('src');vid.style.display='none'
+  document.getElementById('photo-viewer-img').removeAttribute('src');document.getElementById('photo-viewer-img').style.display='block'
+  document.getElementById('photo-viewer').classList.remove('open')
+}
+
+// ── CONTACTS ──
+function renderContacts(){
+  const list=document.getElementById('contacts-list')
+  if(!STATE.contacts.length){list.innerHTML='<div class="empty">連絡先がありません</div>';return}
+  list.innerHTML=STATE.contacts.map((c,i)=>`
+    <div class="contact-row" id="ct-row-${i}">
+      <div class="contact-info"><div class="contact-name">${esc(c.name)}</div><div class="contact-role">${esc(c.role)}${c.note?' · '+esc(c.note):''}</div></div>
+      <a class="contact-tel" href="tel:${esc(c.tel)}">${esc(c.tel)}</a>
+      <div class="row-actions">
+        <button type="button" class="check-edit-btn" onclick="editContact(${i})">編集</button>
+        <button type="button" class="check-del-btn" onclick="deleteContact(${i})">削除</button>
+      </div>
+    </div>`).join('')
+}
+function contactPanelHtml(c){return`
+  <div class="ff"><label class="fl">名前 / 機関名</label><input class="fi" type="text" data-f="name" value="${esc(c?c.name:'')}" placeholder="例: 宿泊先ホテル"></div>
+  <div class="ff"><label class="fl">役割・種別</label><input class="fi" type="text" data-f="role" value="${esc(c?c.role:'')}" placeholder="例: 宿泊先 / 病院 / 警察"></div>
+  <div class="ff"><label class="fl">電話番号</label><input class="fi" type="tel" data-f="tel" value="${esc(c?c.tel:'')}" placeholder="例: 098-999-9999"></div>
+  <div class="ff"><label class="fl">メモ（任意）</label><input class="fi" type="text" data-f="note" value="${esc(c?c.note||'':'')}" placeholder="メモ"></div>`}
+function editContact(i){
+  const row=document.getElementById(`ct-row-${i}`)
+  injectPanel(row,contactPanelHtml(STATE.contacts[i]),(panel)=>{
+    const c={name:panel.querySelector('[data-f="name"]').value.trim(),role:panel.querySelector('[data-f="role"]').value.trim(),tel:panel.querySelector('[data-f="tel"]').value.trim(),note:panel.querySelector('[data-f="note"]').value.trim()}
+    if(!c.name||!c.tel){alert('名前と電話番号を入力してください');return}
+    STATE.contacts[i]=c;renderContacts()
+  })
+}
+function deleteContact(i){if(confirm('この連絡先を削除しますか？')){STATE.contacts.splice(i,1);renderContacts()}}
+function openAddContact(){
+  closeCurrentPanel()
+  const list=document.getElementById('contacts-list')
+  const dummy=document.createElement('div')
+  list.appendChild(dummy)
+  injectPanel(dummy,contactPanelHtml(null),(panel)=>{
+    const c={name:panel.querySelector('[data-f="name"]').value.trim(),role:panel.querySelector('[data-f="role"]').value.trim(),tel:panel.querySelector('[data-f="tel"]').value.trim(),note:panel.querySelector('[data-f="note"]').value.trim()}
+    if(!c.name||!c.tel){alert('名前と電話番号を入力してください');return}
+    STATE.contacts.push(c);dummy.remove();renderContacts()
+  })
+}
+
+// ── SHARE ──
+function renderShare(){document.getElementById('share-url-box').textContent=window.location.href}
+function copyShareUrl(){
+  const url=window.location.href
+  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>{const b=document.getElementById('copy-url-btn');b.textContent='コピー済み';b.classList.add('copied');setTimeout(()=>{b.textContent='コピー';b.classList.remove('copied')},2500)})}
+  else{const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('URLをコピーしました')}
+}
+function exportData(){
+  const data=JSON.stringify({trip:STATE.trip,transport:STATE.transport,events:STATE.events,checklist:STATE.checklist,checked:STATE.checked,budget:STATE.budget,hotels:STATE.hotels,contacts:STATE.contacts,photos:STATE.photos},null,2)
+  const blob=new Blob([data],{type:'application/json'}),a=document.createElement('a')
+  a.href=URL.createObjectURL(blob);a.download='tripletto_data.json';a.click();URL.revokeObjectURL(a.href)
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return
+  const reader=new FileReader()
+  reader.onload=ev=>{
+    try{
+      const data=JSON.parse(ev.target.result)
+      if(data.trip)STATE.trip=data.trip;if(data.transport)STATE.transport=data.transport
+      if(data.events)STATE.events=data.events;if(data.checklist)STATE.checklist=data.checklist
+      if(data.checked)STATE.checked=data.checked;if(data.budget)STATE.budget=data.budget
+      if(data.hotels)STATE.hotels=data.hotels;if(data.contacts)STATE.contacts=data.contacts
+      if(data.photos)STATE.photos=data.photos.map(normalizeMedia).filter(Boolean)
+      renderAll();alert('データをインポートしました')
+    }catch{alert('ファイルの読み込みに失敗しました')}
+  }
+  reader.readAsText(file);e.target.value=''
+}
+function generateQR(){
+  const url=encodeURIComponent(window.location.href)
+  document.getElementById('qr-output').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" alt="QRコード" style="max-width:200px"><div style="font-size:11px;color:var(--text3);margin-top:7px;font-weight:500">スキャンして共有</div>`
+}
+
+// ── MODAL ──
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+document.querySelectorAll('.modal-backdrop').forEach(b=>{b.addEventListener('click',e=>{if(e.target===b)b.classList.remove('open')})})
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    document.querySelectorAll('.modal-backdrop.open').forEach(m=>m.classList.remove('open'))
+    closeCurrentPanel();closePhotoViewer()
+  }
+})
+
+
+// ── WEATHER (Open-Meteo + geocoding) ──
+const DEST_COORDS={
+  '東京':{'lat':35.6895,'lon':139.6917},'大阪':{'lat':34.6937,'lon':135.5023},
+  '京都':{'lat':35.0116,'lon':135.7681},'北海道':{'lat':43.0642,'lon':141.3469},
+  '札幌':{'lat':43.0642,'lon':141.3469},'福岡':{'lat':33.5904,'lon':130.4017},
+  '沖縄':{'lat':26.2124,'lon':127.6809},'那覇':{'lat':26.2124,'lon':127.6809},
+  '名古屋':{'lat':35.1815,'lon':136.9066},'広島':{'lat':34.3853,'lon':132.4553},
+  '仙台':{'lat':38.2682,'lon':140.8694},'横浜':{'lat':35.4437,'lon':139.638},
+  '神戸':{'lat':34.6901,'lon':135.1956},'金沢':{'lat':36.5944,'lon':136.6256},
+  '長野':{'lat':36.6513,'lon':138.181},'奈良':{'lat':34.6851,'lon':135.8049},
+  '鹿児島':{'lat':31.5966,'lon':130.5571},'長崎':{'lat':32.7503,'lon':129.8779},
+  '熊本':{'lat':32.7898,'lon':130.7417},'高知':{'lat':33.5597,'lon':133.5311},
+  'ハワイ':{'lat':21.3069,'lon':-157.8583},'バンコク':{'lat':13.7563,'lon':100.5018},
+  'シンガポール':{'lat':1.3521,'lon':103.8198},'台湾':{'lat':25.0330,'lon':121.5654},
+  '台北':{'lat':25.0330,'lon':121.5654},'ソウル':{'lat':37.5665,'lon':126.9780},
+  'パリ':{'lat':48.8566,'lon':2.3522},'ロンドン':{'lat':51.5074,'lon':-0.1278},
+}
+
+const WX_CODE={
+  0:'☀️',1:'🌤️',2:'⛅',3:'☁️',
+  45:'🌫️',48:'🌫️',
+  51:'🌦️',53:'🌦️',55:'🌧️',
+  61:'🌧️',63:'🌧️',65:'🌧️',
+  71:'🌨️',73:'🌨️',75:'🌨️',
+  80:'🌦️',81:'🌧️',82:'⛈️',
+  95:'⛈️',96:'⛈️',99:'⛈️'
+}
+
+let weatherCache=null
+let weatherDates=[]
+
+function getCoords(){
+  const dest=STATE.trip.dest||''
+  for(const key of Object.keys(DEST_COORDS)){
+    if(dest.includes(key))return DEST_COORDS[key]
+  }
+  return{lat:35.6895,lon:139.6917} // default Tokyo
+}
+
+async function fetchWeather(){
+  const{lat,lon}=getCoords()
+  const p=parseJpDate(STATE.trip.dep)
+  if(!p)return null
+  const startDate=`${p.y}-${String(p.mo).padStart(2,'0')}-${String(p.d).padStart(2,'0')}`
+  const endP=parseJpDate(STATE.trip.ret)||p
+  const endDate=`${endP.y}-${String(endP.mo).padStart(2,'0')}-${String(endP.d).padStart(2,'0')}`
+  try{
+    const url=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=Asia%2FTokyo&start_date=${startDate}&end_date=${endDate}`
+    const res=await fetch(url)
+    if(!res.ok)return null
+    const data=await res.json()
+    weatherCache=data.daily
+    weatherDates=data.daily.time||[]
+    return data.daily
+  }catch(e){return null}
+}
+
+function wxIcon(code){return WX_CODE[code]||'🌡️'}
+
+async function renderOverviewWeather(){
+  const body=document.getElementById('ov-weather-body')
+  if(!body)return
+  body.innerHTML='<div class="weather-loading">天気情報を取得中...</div>'
+  const data=await fetchWeather()
+  if(!data){body.innerHTML='<div class="weather-error">天気情報を取得できませんでした。<br>インターネット接続が必要です。ローカルファイルで開いている場合、ブラウザのCORSポリシーにより取得できないことがあります。<br><a href="https://tenki.jp" target="_blank" style="color:var(--gold-dark)">tenki.jpで確認 ↗</a></div>';return}
+  const days=data.time||[]
+  const depP=parseJpDate(STATE.trip.dep)
+  body.innerHTML='<div class="weather-days">'+days.map((dateStr,i)=>{
+    const d=new Date(dateStr)
+    const mo=d.getMonth()+1,dy=d.getDate()
+    const code=data.weathercode[i],rain=data.precipitation_probability_max[i]
+    const maxT=Math.round(data.temperature_2m_max[i]),minT=Math.round(data.temperature_2m_min[i])
+    return`<div class="weather-day">
+      <div class="weather-day-label">${mo}/${dy}</div>
+      <div class="weather-icon">${wxIcon(code)}</div>
+      <div class="weather-temp">${maxT}°/${minT}°</div>
+      <div class="weather-rain">☂ ${rain??'--'}%</div>
+    </div>`
+  }).join('')+'</div>'
+}
+
+function renderDayWeather(){
+  if(!weatherCache)return
+  const dates=buildItineraryDates()
+  dates.forEach((dateLabel,i)=>{
+    const el=document.getElementById('dw-'+i)
+    if(!el)return
+    const p=dateLabel.match(/(\d+)月(\d+)日/)
+    if(!p)return
+    const mo=parseInt(p[1]),dy=parseInt(p[2])
+    const depP=parseJpDate(STATE.trip.dep)
+    if(!depP)return
+    const targetDate=depP.y+'-'+String(mo).padStart(2,'0')+'-'+String(dy).padStart(2,'0')
+    const idx=weatherDates.indexOf(targetDate)
+    if(idx<0)return
+    const code=weatherCache.weathercode[idx]
+    const rain=weatherCache.precipitation_probability_max[idx]
+    el.innerHTML='<span style="font-size:15px;margin-left:4px">'+wxIcon(code)+'</span><span style="font-size:10px;color:rgba(250,248,245,0.65);margin-left:2px">☂'+(rain!=null?rain:'--')+'%</span>'
+  })
+}
+
+// ── DAYS AUTO-CALC ──
+function calcDaysFromDates(){
+  const depP=parseJpDate(STATE.trip.dep),retP=parseJpDate(STATE.trip.ret)
+  if(depP&&retP){
+    const d1=new Date(depP.y,depP.mo-1,depP.d),d2=new Date(retP.y,retP.mo-1,retP.d)
+    const diff=Math.round((d2-d1)/(1000*60*60*24))+1
+    if(diff>0){STATE.trip.days=diff;const el=document.getElementById('ov-days-tap');if(el)el.textContent=diff}
+  }
+}
+
+// ── RENDER ALL ──
+function renderAll(){
+  renderOverview()
+  if(STATE.activeTab==='transport')initTransportFields()
+  renderDays();renderPersonTabs();renderChecklist()
+  renderBudget();renderHotels();renderPhotos();renderContacts();renderShare()
+  if(STATE.activeTab==='overview'&&!weatherCache)renderOverviewWeather()
+  if(STATE.activeTab==='itinerary')renderDayWeather()
+}
+renderAll()
+initTransportFields()
+// fetch weather on load for itinerary too
+fetchWeather().then(()=>{renderDayWeather()})
+</script>
+</body>
+</html>
