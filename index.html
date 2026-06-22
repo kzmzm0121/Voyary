@@ -10,6 +10,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Firebase（家族間リアルタイム共有用。未設定でも動作するようガード済み） -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -42,8 +45,15 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 .trip-badge{font-size:10px;font-weight:600;padding:4px 10px;background:transparent;color:var(--gold-light);border:1px solid rgba(201,169,98,0.45);letter-spacing:0.14em;text-transform:uppercase;display:inline-flex;align-items:center}
 .trip-badge.ongoing{border-color:rgba(92,122,107,0.7);color:#A8D4BE}
 .trip-badge.done{border-color:rgba(201,169,98,0.7);color:var(--gold-light)}
+.trip-badge.finish-btn{cursor:pointer;background:var(--gold);color:var(--ink);border-color:var(--gold);font-weight:700;transition:all .2s;animation:badgePulse 2s ease-in-out infinite}
+.trip-badge.finish-btn:hover{background:var(--gold-light);transform:translateY(-1px)}
+@keyframes badgePulse{0%,100%{box-shadow:0 0 0 0 rgba(201,169,98,0.5)}50%{box-shadow:0 0 0 5px rgba(201,169,98,0)}}
 .header h1{font-family:var(--font-d);font-size:24px;font-weight:600;color:#FAF8F5;letter-spacing:0.02em;line-height:1.15;position:relative;z-index:1;flex:1}
 .header-sub{font-size:12px;color:rgba(250,248,245,0.7);margin-top:5px;font-weight:500;letter-spacing:0.04em;position:relative;z-index:1}
+.save-indicator{font-size:9px;color:rgba(250,248,245,0.5);margin-top:3px;font-weight:500;letter-spacing:0.06em;position:relative;z-index:1;display:flex;align-items:center;gap:4px;transition:opacity .3s}
+.save-indicator .dot{width:5px;height:5px;border-radius:50%;background:#7FB89A;flex-shrink:0;transition:background .3s}
+.save-indicator.saving .dot{background:#E8C57A;animation:savingPulse 1s ease-in-out infinite}
+@keyframes savingPulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* TABS */
 .tabs{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--card);border-bottom:1px solid var(--border);padding:0 8px;-webkit-overflow-scrolling:touch;box-shadow:0 2px 16px rgba(26,23,20,0.04)}
@@ -94,6 +104,7 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 .edit-val-wrap{flex:1;display:flex;align-items:center;justify-content:flex-end;gap:6px}
 .ev-text{font-weight:600;color:var(--text1);text-align:right;cursor:pointer;border-bottom:1px dashed transparent;transition:border-color 0.2s;padding:1px 0}
 .ev-text:hover{border-bottom-color:var(--gold)}
+.ev-text.ev-placeholder{color:var(--text3);font-weight:500}
 /* inline input/select */
 .ie-input,.ie-select{font-size:13px;font-weight:600;color:var(--text1);font-family:inherit;background:var(--cream);border:1px solid var(--gold);padding:5px 8px;min-width:0;outline:none;-webkit-appearance:none;appearance:none}
 .ie-select{cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23A39E96'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 6px center;padding-right:22px}
@@ -294,6 +305,25 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 .day-weather-icon{font-size:16px}
 .day-weather-rain{color:var(--sage);font-weight:600}
 
+/* ALBUMS（思い出タブ） */
+.album-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden;cursor:pointer;transition:transform .2s,box-shadow .2s}
+.album-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg)}
+.album-cover{width:100%;aspect-ratio:16/9;background:var(--grad-ink);position:relative;overflow:hidden}
+.album-cover img{width:100%;height:100%;object-fit:cover}
+.album-cover-empty{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:rgba(232,213,168,0.4);font-family:var(--font-d);font-size:13px;letter-spacing:.1em}
+.album-cover-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(20,18,16,0.85),transparent 55%);display:flex;flex-direction:column;justify-content:flex-end;padding:14px}
+.album-title{font-family:var(--font-d);font-size:18px;font-weight:600;color:#FAF8F5}
+.album-dates{font-size:10px;color:rgba(250,248,245,0.75);margin-top:3px;letter-spacing:.04em}
+.album-meta-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;font-size:11px;color:var(--text3);font-weight:500}
+.album-meta-row span{display:flex;align-items:center;gap:4px}
+.albums-section-label{font-size:10px;font-weight:600;color:var(--gold-dark);text-transform:uppercase;letter-spacing:0.18em;margin:22px 0 12px;display:flex;align-items:center;gap:8px}
+.albums-section-label::before{content:'';width:20px;height:1px;background:var(--gold);flex-shrink:0}
+.album-detail-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.album-back-btn{font-size:11px;font-weight:600;color:var(--text2);background:transparent;border:1px solid var(--border2);padding:8px 14px;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:all .2s}
+.album-back-btn:hover{border-color:var(--gold);color:var(--ink)}
+.album-del-btn{margin-left:auto;font-size:11px;font-weight:600;color:var(--burgundy);background:transparent;border:1px solid rgba(139,69,69,0.3);padding:8px 14px;cursor:pointer;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;transition:all .2s}
+.album-del-btn:hover{background:rgba(139,69,69,0.08)}
+
 @media(max-width:400px){.tab{padding:11px 9px;font-size:11px}.photo-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
@@ -304,9 +334,10 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
   <div class="brand-mark" style="margin-bottom:8px">Voyary</div>
   <div class="header-top">
     <h1 id="trip-title">沖縄家族旅行 2025</h1>
-    <span class="trip-badge" id="trip-status-badge">計画中</span>
+    <span class="trip-badge" id="trip-status-badge" onclick="onBadgeClick()">計画中</span>
   </div>
   <div class="header-sub" id="trip-dates">2025年8月11日 〜 2025年8月15日 · 4泊5日</div>
+  <div class="save-indicator" id="save-indicator"><span class="dot"></span><span id="save-indicator-text">保存済み</span></div>
 </div>
 <div class="tabs">
   <button class="tab active" onclick="switchTab('overview')">概要</button>
@@ -315,9 +346,10 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
   <button class="tab" onclick="switchTab('itinerary')">旅程</button>
   <button class="tab" onclick="switchTab('checklist')">持ち物</button>
   <button class="tab" onclick="switchTab('budget')">予算</button>
-  <button class="tab" onclick="switchTab('photos')">思い出</button>
+  <button class="tab" onclick="switchTab('photos')">写真・動画</button>
   <button class="tab" onclick="switchTab('emergency')">緊急</button>
   <button class="tab" onclick="switchTab('share')">共有</button>
+  <button class="tab" onclick="switchTab('albums')">思い出</button>
 </div>
 </div>
 
@@ -325,7 +357,7 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 <div id="sec-overview" class="section active">
   <div class="stats-grid">
     <div class="stat-card">
-      <div class="days-tap" id="ov-days-tap" onclick="openDaysPicker()" title="タップして変更">5</div>
+      <div class="days-tap" id="ov-days-tap" onclick="startEditDays()" title="タップして変更">5</div>
       <div class="stat-lbl">日間</div>
     </div>
     <div class="stat-card">
@@ -374,6 +406,8 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
     <div class="card-label">持ち物準備状況</div>
     <div id="ov-progress-list"></div>
   </div>
+
+  <div id="ov-past-albums-wrap"></div>
 </div>
 
 <!-- ===== TRANSPORT ===== -->
@@ -539,7 +573,7 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
   <button class="add-btn add-btn-accent" onclick="openSetBudget()">予算を設定</button>
 </div>
 
-<!-- ===== PHOTOS ===== -->
+<!-- ===== PHOTOS（写真・動画） ===== -->
 <div id="sec-photos" class="section">
   <div class="photo-grid" id="photo-grid"></div>
   <input type="file" id="photo-input" accept="image/*,video/*" style="display:none" multiple onchange="handlePhotoUpload(event)">
@@ -554,28 +588,49 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 <!-- ===== SHARE ===== -->
 <div id="sec-share" class="section">
   <div class="share-panel">
-    <div class="share-panel-title">家族で共有</div>
-    <div class="share-url-wrap">
-      <div class="share-url-box" id="share-url-box">このページのURLを共有</div>
-      <button class="copy-btn" id="copy-url-btn" onclick="copyShareUrl()">コピー</button>
-    </div>
-    <div class="share-hint">このHTMLファイルをGoogle Drive、iCloud、Dropbox等にアップロードして共有リンクを送ることで家族全員がアクセスできます。<br><br>スマホのホーム画面に追加すればアプリのように使えます（Safari→「共有」→「ホーム画面に追加」/ Chrome→メニュー→「ホーム画面に追加」）。</div>
+    <div class="share-panel-title">家族とリアルタイム共有</div>
+    <div id="sync-status-area"></div>
   </div>
+
   <div class="card">
-    <div class="card-label">データ管理</div>
+    <div class="card-label">データ管理（バックアップ）</div>
     <div style="display:flex;flex-direction:column;gap:8px;padding-top:4px">
       <button class="btn-primary" style="width:100%;justify-content:center;display:flex" onclick="exportData()">エクスポート</button>
       <label class="btn-secondary" style="cursor:pointer">インポート<input type="file" accept=".json" style="display:none" onchange="importData(event)"></label>
     </div>
-    <div class="share-hint" style="margin-top:10px">エクスポートしたJSONを家族に共有→インポートでデータを同期できます。</div>
+    <div class="share-hint" style="margin-top:10px">リアルタイム共有を設定していない場合や、機種変更時のバックアップとしてご利用ください。</div>
   </div>
+
   <div class="card">
-    <div class="card-label">QRコードで共有</div>
-    <div style="text-align:center;padding:8px 0">
-      <button class="add-btn" onclick="generateQR()" style="margin-bottom:7px">QRコードを生成</button>
-      <div id="qr-output"></div>
+    <div class="card-label">アプリとして使う</div>
+    <div class="share-hint">スマホのホーム画面に追加すればアプリのように使えます（Safari→「共有」→「ホーム画面に追加」/ Chrome→メニュー→「ホーム画面に追加」）。</div>
+  </div>
+</div>
+
+<!-- Firebase初回セットアップ用モーダル -->
+<div class="modal-backdrop" id="modal-firebase-setup">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>リアルタイム共有を設定</h3>
+    <p style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+      家族間でリアルタイムに旅行データを共有するには、無料のFirebaseプロジェクトが必要です（5分程度）。<br><br>
+      <b>① <a href="https://console.firebase.google.com/" target="_blank" rel="noopener" style="color:var(--gold-dark)">Firebaseコンソール ↗</a> でプロジェクトを新規作成</b><br>
+      <b>② 「Firestore Database」を有効化</b>（本番モードでOK。テストモードのルールに変更：read,write: if true;）<br>
+      <b>③ 「プロジェクトの設定」→「全般」→「マイアプリ」でWebアプリを追加し、設定情報（apiKey等）をコピー</b><br>
+      <b>④ 下のフォームに貼り付け</b>
+    </p>
+    <div class="form-field"><label class="form-label">Firebase設定（JSON形式で貼り付け）</label><textarea id="firebase-config-input" class="form-input" rows="6" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...",...}' style="font-family:monospace;font-size:11px;resize:vertical"></textarea></div>
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="closeModal('modal-firebase-setup')">あとで</button>
+      <button class="btn-primary" onclick="saveFirebaseConfig()">設定して接続</button>
     </div>
   </div>
+</div>
+
+<!-- ===== ALBUMS（思い出） ===== -->
+
+<div id="sec-albums" class="section">
+  <div id="albums-view"></div>
 </div>
 
 </div><!-- /app-wrap -->
@@ -592,12 +647,30 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 <div class="modal-backdrop" id="modal-photo">
   <div class="modal">
     <div class="modal-handle"></div>
-    <h3 id="modal-photo-title">思い出を追加</h3>
+    <h3 id="modal-photo-title">写真・動画を追加</h3>
     <div id="photo-preview-wrap" style="margin-bottom:10px"></div>
     <div class="form-field"><label class="form-label">キャプション（任意）</label><input type="text" id="ph-caption" class="form-input" placeholder="例: 美ら海水族館！"></div>
     <div class="modal-btns">
       <button class="btn-ghost" onclick="closeModal('modal-photo')">キャンセル</button>
       <button class="btn-primary" onclick="savePhoto()">追加</button>
+    </div>
+  </div>
+</div>
+
+<!-- アルバム化 確認モーダル -->
+<div class="modal-backdrop" id="modal-finish">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>思い出にして旅行を終わる</h3>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:14px">
+      現在の旅行データを「思い出」アルバムとして保存します。<br>
+      保存後、画面は新しい旅行の入力画面に戻ります。<br>
+      アルバムは「思い出」タブからいつでも見返したり、写真・動画を追加できます。
+    </p>
+    <div class="form-field"><label class="form-label">アルバム名（任意・変更可）</label><input type="text" id="finish-album-title" class="form-input" placeholder="例: 沖縄家族旅行 2025"></div>
+    <div class="modal-btns">
+      <button class="btn-ghost" onclick="closeModal('modal-finish')">キャンセル</button>
+      <button class="btn-primary" onclick="confirmFinishTrip()">アルバムにして終わる</button>
     </div>
   </div>
 </div>
@@ -638,16 +711,16 @@ function genAirportOptions(selectedVal){
 }
 
 // Year/Month/Day options
-function genYearOptions(sel){let h='';for(let y=2024;y<=2030;y++)h+=`<option value="${y}"${y===sel?' selected':''}>${y}年</option>`;return h}
-function genMonthOptions(sel){let h='';for(let m=1;m<=12;m++)h+=`<option value="${m}"${m===sel?' selected':''}>${m}月</option>`;return h}
-function genDayOptions(sel){let h='';for(let d=1;d<=31;d++)h+=`<option value="${d}"${d===sel?' selected':''}>${d}日</option>`;return h}
+function genYearOptions(sel){let h='<option value="">−</option>';for(let y=2024;y<=2099;y++)h+=`<option value="${y}"${y===sel?' selected':''}>${y}年</option>`;return h}
+function genMonthOptions(sel){let h='<option value="">−</option>';for(let m=1;m<=12;m++)h+=`<option value="${m}"${m===sel?' selected':''}>${m}月</option>`;return h}
+function genDayOptions(sel){let h='<option value="">−</option>';for(let d=1;d<=31;d++)h+=`<option value="${d}"${d===sel?' selected':''}>${d}日</option>`;return h}
 
 // Parse "2025年8月11日" → {y,mo,d}
 function parseJpDate(str){
   const m=str.match(/(\d{4})年(\d{1,2})月(\d{1,2})日/)
   return m?{y:parseInt(m[1]),mo:parseInt(m[2]),d:parseInt(m[3])}:null
 }
-function toJpDate(y,mo,d){return`${y}年${mo}月${d}日`}
+function toJpDate(y,mo,d){if(!y||!mo||!d)return'';return`${y}年${mo}月${d}日`}
 
 // ── INITIAL CHECKLIST ──
 function buildInitialChecklist(members){
@@ -656,43 +729,260 @@ function buildInitialChecklist(members){
   members.forEach((m,i)=>{
     const docs=['パスポート','ビザ','航空券・乗車券','入場チケット','運転免許証','健康保険証','学生証']
     if(i===0)docs.push('旅行保険証','ホテル予約確認書')
-    r[m]={'書類・チケット':docs,'衣類':['下着','パジャマ','肌着','くつ下','Tシャツ','パンツ','ワンピース','帽子','スニーカー','水着','サンダル','サングラス','着替え'],'洗面・衛生用品':['日焼け止め','歯ブラシセット','タオル・ハンカチ','メガネ・コンタクト用品','ウェットティッシュ','マスク','常備薬','シャンプー・コンディショナー','ボディーソープ','スキンケア品','ヘアセット用品','虫除け対策','洗濯用品','生理用品'],'移動中':['酔い止め','イヤホン','ネックピロー','アイマスク','耳栓','タブレット','おもちゃ'],'その他':['現金','モバイルバッテリー','充電器類','カメラ','映像ケーブル','自撮り棒','傘','レインコート','エコバッグ','のど飴','メモ帳・筆記用具','カラトリー','水筒','お菓子']}
+    r[m]={'書類・チケット':docs,'衣類':['下着','パジャマ','肌着','くつ下','Tシャツ','パンツ','ワンピース','帽子','スニーカー','水着','サンダル','サングラス','着替え'],'洗面・衛生用品':['日焼け止め','歯ブラシセット','タオル・ハンカチ','メガネ・コンタクト用品','ウェットティッシュ','マスク','常備薬','シャンプー・コンディショナー','ボディーソープ','スキンケア品','ヘアセット用品','虫除け対策','洗濯用品','生理用品'],'移動中':['酔い止め','イヤホン','ネックピロー','アイマスク','耳栓','タブレット','おもちゃ'],'その他':['現金','モバイルバッテリー','充電器類','カメラ','映像ケーブル','自撮り棒','傘','レインコート','エコバッグ','のど飴','メモ帳・筆記用具','カトラリー','水筒','お菓子']}
   })
   return r
 }
 
-// ── STATE ──
-const STATE={
-  trip:{title:'沖縄家族旅行 2025',dest:'沖縄県',dep:'2025年8月11日',ret:'2025年8月15日',days:5,members:['パパ','ママ','太郎','花子']},
-  transport:{
-    flight:{dep:{mo:'8',day:'11',from:'大阪（伊丹 ITM）',to:'那覇（OKA）',no:'JL987',time:'09:00',arr:'11:20'},ret:{mo:'8',day:'15',from:'那覇（OKA）',to:'大阪（伊丹 ITM）',no:'JL2990',time:'16:40',arr:'18:55'}},
-    train:{dep:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''},ret:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''}},
-    bus:{dep:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''},ret:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''}},
-    car:{dep:{mo:'',day:'',from:'',to:'',time:'',arr:'',note:''},ret:{mo:'',day:'',from:'',to:'',time:'',arr:'',note:''}}
-  },
-  events:{},
-  checklist:buildInitialChecklist(),
-  checked:{},
-  budget:{total:200000,expenses:[
-    {name:'航空券（往復×4）',amount:80000,cat:'交通',date:'8月11日',note:'JL往復'},
-    {name:'レンタカー（5日間）',amount:25000,cat:'交通',date:'8月11日',note:''},
-    {name:'ホテル代（4泊）',amount:60000,cat:'宿泊',date:'8月11日',note:''},
-    {name:'美ら海水族館',amount:6000,cat:'観光',date:'8月12日',note:'家族4名'}
-  ]},
-  hotels:[
-    {name:'ホテル日航那覇グランドキャッスル',addr:'沖縄県那覇市首里金城町1-132-1',cinDate:'2025年8月11日',cinTime:'15:00',coutDate:'2025年8月15日',coutTime:'11:00',tel:'098-886-5454',rsv:'RES-20250811-001',map:'https://maps.google.com/?q=ホテル日航那覇グランドキャッスル',note:'Wi-Fi無料・駐車場あり'}
-  ],
-  photos:[],
-  contacts:[
-    {name:'那覇市立病院',role:'総合病院',tel:'098-884-5111',note:'最寄り総合病院'},
-    {name:'那覇警察署',role:'警察',tel:'098-863-0110',note:''},
-    {name:'在沖縄 旅行保険緊急デスク',role:'保険',tel:'0120-xxx-xxx',note:'24時間対応'}
-  ],
-  activeTab:'overview',activePerson:null,pendingPhotos:[]
+// ── DEFAULT STATE FACTORY（起動時・リセット時の「空」状態を作る）──
+function buildDefaultState(){
+  return{
+    trip:{title:'',dest:'',dep:'',ret:'',days:1,members:[]},
+    transport:{
+      flight:{dep:{mo:'',day:'',from:'',to:'',no:'',time:'',arr:''},ret:{mo:'',day:'',from:'',to:'',no:'',time:'',arr:''}},
+      train:{dep:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''},ret:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''}},
+      bus:{dep:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''},ret:{mo:'',day:'',from:'',to:'',route:'',time:'',arr:'',note:''}},
+      car:{dep:{mo:'',day:'',from:'',to:'',time:'',arr:'',note:''},ret:{mo:'',day:'',from:'',to:'',time:'',arr:'',note:''}}
+    },
+    events:{},
+    checklist:{},
+    checked:{},
+    budget:{total:0,expenses:[]},
+    hotels:[],
+    photos:[],
+    contacts:[],
+    activeTab:'overview',activePerson:null,pendingPhotos:[],
+    albums:[],activeAlbumId:null
+  }
+}
+
+// ── STATE（起動時の初期状態 = 全項目「未設定」のまっさらな状態）──
+const STATE=buildDefaultState()
+
+/* =========================================================
+   永続化レイヤー（自動保存 / 復元 / リアルタイム共有）
+   - localStorage: 常に保存。オフラインでも必ず動く土台。
+   - Firebase Firestore: 設定済みなら「共有コード」単位でリアルタイム同期。
+     家族が同じ共有コードを使うと、誰かの編集が他の端末に即座に反映される。
+   Firebase未設定の場合は自動的にlocalStorageのみで動作する（壊れない設計）。
+========================================================= */
+const LS_KEY='voyary_state_v1'
+const LS_FIREBASE_CONFIG_KEY='voyary_firebase_config'
+const LS_TRIP_CODE_KEY='voyary_trip_code'
+let saveTimer=null
+let isRestoring=false
+let isApplyingRemote=false // Firestoreからの受信反映中は再送信しない
+
+// ── Firebase state ──
+let fbApp=null,fbDb=null,fbUnsub=null
+let fbConfig=null
+let tripCode=null
+
+function setSaveIndicator(mode){
+  const wrap=document.getElementById('save-indicator')
+  const txt=document.getElementById('save-indicator-text')
+  if(!wrap||!txt)return
+  if(mode==='saving'){wrap.classList.add('saving');txt.textContent='保存中…'}
+  else if(mode==='saved'){wrap.classList.remove('saving');txt.textContent=fbDb?'保存済み（共有中）':'保存済み（この端末のみ）'}
+  else if(mode==='error'){wrap.classList.remove('saving');txt.textContent='保存に失敗しました'}
+}
+
+function serializeState(){
+  return JSON.stringify(STATE)
+}
+
+async function persistState(){
+  if(isRestoring||isApplyingRemote)return
+  setSaveIndicator('saving')
+  const json=serializeState()
+  try{
+    localStorage.setItem(LS_KEY,json)
+  }catch(e){
+    console.warn('localStorage save failed',e)
+    setSaveIndicator('error')
+    return
+  }
+  // Firebaseが設定されていればクラウドにも書き込み、家族の他端末へリアルタイム反映
+  if(fbDb&&tripCode){
+    try{
+      await fbDb.collection('voyary_trips').doc(tripCode).set({data:json,updatedAt:Date.now()})
+    }catch(e){
+      console.warn('firestore save failed',e)
+    }
+  }
+  setSaveIndicator('saved')
+}
+
+// デバウンス付き自動保存呼び出し（連続入力時にまとめて保存）
+function scheduleSave(){
+  if(isRestoring||isApplyingRemote)return
+  if(saveTimer)clearTimeout(saveTimer)
+  setSaveIndicator('saving')
+  saveTimer=setTimeout(()=>{persistState()},500)
+}
+
+async function restoreState(){
+  isRestoring=true
+  let restored=null
+  try{
+    const raw=localStorage.getItem(LS_KEY)
+    if(raw)restored=JSON.parse(raw)
+  }catch(e){
+    console.warn('localStorage restore failed',e)
+  }
+  if(restored){
+    applyRestoredState(restored)
+  }
+  isRestoring=false
+}
+
+function applyRestoredState(data){
+  if(data.trip)STATE.trip=data.trip
+  if(data.transport)STATE.transport=data.transport
+  if(data.events)STATE.events=data.events
+  if(data.checklist)STATE.checklist=data.checklist
+  if(data.checked)STATE.checked=data.checked
+  if(data.budget)STATE.budget=data.budget
+  if(data.hotels)STATE.hotels=data.hotels
+  if(data.contacts)STATE.contacts=data.contacts
+  if(data.photos)STATE.photos=data.photos.map(normalizeMedia).filter(Boolean)
+  if(data.albums)STATE.albums=data.albums
+  if(typeof data.activeAlbumId!=='undefined')STATE.activeAlbumId=data.activeAlbumId
+  if(data.activeTab)STATE.activeTab=data.activeTab
+  if(data.activePerson)STATE.activePerson=data.activePerson
+}
+
+/* =========================================================
+   Firebase 連携
+========================================================= */
+function loadFirebaseConfigFromStorage(){
+  try{
+    const raw=localStorage.getItem(LS_FIREBASE_CONFIG_KEY)
+    if(raw)fbConfig=JSON.parse(raw)
+  }catch(e){console.warn('firebase config parse failed',e)}
+  try{
+    tripCode=localStorage.getItem(LS_TRIP_CODE_KEY)||null
+  }catch(e){}
+}
+
+function initFirebase(){
+  if(!fbConfig||!window.firebase)return false
+  try{
+    if(!fbApp)fbApp=firebase.initializeApp(fbConfig)
+    fbDb=firebase.firestore()
+    return true
+  }catch(e){
+    console.warn('firebase init failed',e)
+    fbDb=null
+    return false
+  }
+}
+
+function genTripCode(){
+  // 人が読みやすい6桁英数字コード（紛らわしい文字は除外）
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  let code=''
+  for(let i=0;i<6;i++)code+=chars[Math.floor(Math.random()*chars.length)]
+  return code
+}
+
+function connectToTripCode(code){
+  if(!fbDb)return
+  if(fbUnsub){fbUnsub();fbUnsub=null}
+  tripCode=code
+  try{localStorage.setItem(LS_TRIP_CODE_KEY,code)}catch(e){}
+  // 初回：既存データがあれば取得、なければ自分のデータをアップロード
+  fbDb.collection('voyary_trips').doc(code).get().then(doc=>{
+    if(doc.exists&&doc.data().data){
+      isApplyingRemote=true
+      applyRestoredState(JSON.parse(doc.data().data))
+      isApplyingRemote=false
+      renderAll();initTransportFields()
+    } else {
+      persistState() // 自分のデータを初回アップロード
+    }
+    // リアルタイムリスナー開始
+    fbUnsub=fbDb.collection('voyary_trips').doc(code).onSnapshot(snap=>{
+      if(!snap.exists)return
+      const remoteJson=snap.data().data
+      if(!remoteJson)return
+      // 自分が書き込んだ直後のスナップショットは無視したいが、
+      // シンプルさのため毎回適用（差分が無ければ実害なし）
+      isApplyingRemote=true
+      try{
+        const remote=JSON.parse(remoteJson)
+        applyRestoredState(remote)
+        renderAll();initTransportFields()
+      }catch(e){console.warn('remote apply failed',e)}
+      isApplyingRemote=false
+    })
+    renderSyncStatus()
+  })
+}
+
+function saveFirebaseConfig(){
+  const raw=document.getElementById('firebase-config-input').value.trim()
+  if(!raw){alert('Firebase設定を貼り付けてください');return}
+  let parsed
+  try{parsed=JSON.parse(raw)}catch(e){alert('JSON形式が正しくありません');return}
+  if(!parsed.apiKey||!parsed.projectId){alert('apiKeyとprojectIdが含まれていません');return}
+  fbConfig=parsed
+  try{localStorage.setItem(LS_FIREBASE_CONFIG_KEY,JSON.stringify(parsed))}catch(e){}
+  const ok=initFirebase()
+  if(!ok){alert('Firebaseの初期化に失敗しました。設定内容を確認してください');return}
+  closeModal('modal-firebase-setup')
+  // コードが無ければ新規発行
+  if(!tripCode)tripCode=genTripCode()
+  connectToTripCode(tripCode)
+}
+
+function renderSyncStatus(){
+  const area=document.getElementById('sync-status-area')
+  if(!area)return
+  if(!fbConfig){
+    area.innerHTML=`
+      <div class="share-hint" style="margin-bottom:14px">家族とリアルタイムで旅行データを共有できます。共有コードを発行して、家族にそのコードを伝えるだけで全員が同じ画面を見られます。</div>
+      <button class="btn-primary" style="width:100%;justify-content:center;display:flex" onclick="document.getElementById('modal-firebase-setup').classList.add('open')">リアルタイム共有を設定する</button>
+    `
+    return
+  }
+  if(!fbDb){
+    area.innerHTML=`<div class="share-hint" style="color:var(--burgundy)">Firebaseへの接続に失敗しました。設定を確認してください。</div>
+      <button class="btn-secondary" style="width:100%;margin-top:8px" onclick="document.getElementById('modal-firebase-setup').classList.add('open')">設定をやり直す</button>`
+    return
+  }
+  area.innerHTML=`
+    <div class="share-url-wrap">
+      <div class="share-url-box" id="trip-code-box" style="font-family:var(--font-d);font-size:18px;font-weight:600;letter-spacing:0.15em;text-align:center">${esc(tripCode||'')}</div>
+      <button class="copy-btn" id="copy-code-btn" onclick="copyTripCode()">コピー</button>
+    </div>
+    <div class="share-hint">この共有コードを家族に伝えてください。家族は下のフォームにコードを入力するだけで、リアルタイムに同じ旅行データを見られます。</div>
+    <div class="form-field" style="margin-top:14px"><label class="form-label">別の共有コードに参加する</label>
+      <div style="display:flex;gap:7px">
+        <input type="text" id="join-code-input" class="form-input" placeholder="例: A3F9K2" style="text-transform:uppercase">
+        <button class="copy-btn" onclick="joinTripCode()">参加</button>
+      </div>
+    </div>
+    <div class="share-hint" style="margin-top:10px;font-size:10px">⚠ 別のコードに参加すると、現在の旅行データはそのコードの内容に置き換わります。事前にエクスポートでバックアップを推奨します。</div>
+  `
+}
+function copyTripCode(){
+  if(!tripCode)return
+  navigator.clipboard?.writeText(tripCode).then(()=>{
+    const b=document.getElementById('copy-code-btn')
+    if(b){b.textContent='コピー済み';b.classList.add('copied');setTimeout(()=>{b.textContent='コピー';b.classList.remove('copied')},2000)}
+  })
+}
+function joinTripCode(){
+  const input=document.getElementById('join-code-input')
+  const code=(input?.value||'').trim().toUpperCase()
+  if(!code){alert('共有コードを入力してください');return}
+  if(!fbDb){alert('先にFirebaseを設定してください');return}
+  connectToTripCode(code)
 }
 
 // ── TAB ──
-const TAB_ORDER=['overview','transport','hotel','itinerary','checklist','budget','photos','emergency','share']
+const TAB_ORDER=['overview','transport','hotel','itinerary','checklist','budget','photos','emergency','share','albums']
 function switchTab(tab){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'))
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'))
@@ -704,18 +994,92 @@ function switchTab(tab){
   renderAll()
   if(tab==='overview'){renderOverviewWeather()}
   if(tab==='itinerary'){if(weatherCache)setTimeout(renderDayWeather,50);else fetchWeather().then(()=>{renderDays();renderDayWeather()})}
+  if(tab==='albums'){renderAlbumsView()}
+  if(tab==='share'){renderSyncStatus()}
+  scheduleSave()
 }
 
-// ── STATUS BADGE ──
+// ── STATUS BADGE / 旅行終了ボタン ──
+function isTripOverToday(){
+  const m=parseJpDate(STATE.trip.ret)
+  if(!m)return false
+  const ret=new Date(m.y,m.mo-1,m.d);ret.setHours(23,59,59,999)
+  const today=new Date()
+  return today>ret
+}
 function updateTripStatus(){
   const badge=document.getElementById('trip-status-badge');if(!badge)return
   function parseD(str){const m=parseJpDate(str);return m?new Date(m.y,m.mo-1,m.d):null}
   const dep=parseD(STATE.trip.dep),ret=parseD(STATE.trip.ret)
   const today=new Date();today.setHours(0,0,0,0)
   badge.className='trip-badge'
-  if(ret&&today>ret){badge.textContent='完了';badge.classList.add('done')}
-  else if(dep&&today>=dep){badge.textContent='旅行中';badge.classList.add('ongoing')}
-  else{badge.textContent='計画中'}
+  if(isTripOverToday()){
+    // 帰着日を過ぎたら「思い出にして旅行を終わる」ボタンに変化
+    badge.textContent='思い出にして旅行を終わる'
+    badge.classList.add('done','finish-btn')
+  } else if(dep&&today>=dep){
+    badge.textContent='旅行中';badge.classList.add('ongoing')
+  } else {
+    badge.textContent='計画中'
+  }
+}
+function onBadgeClick(){
+  if(isTripOverToday()){
+    openFinishTripModal()
+  }
+}
+
+// ── 思い出にして旅行を終わる ──
+function openFinishTripModal(){
+  closeCurrentPanel()
+  const input=document.getElementById('finish-album-title')
+  input.value=STATE.trip.title||''
+  document.getElementById('modal-finish').classList.add('open')
+}
+function confirmFinishTrip(){
+  const titleInput=document.getElementById('finish-album-title')
+  const albumTitle=(titleInput.value||STATE.trip.title||'旅行の思い出').trim()
+
+  const album={
+    id:'album_'+Date.now()+'_'+Math.random().toString(36).slice(2,8),
+    title:albumTitle,
+    dest:STATE.trip.dest,
+    dep:STATE.trip.dep,
+    ret:STATE.trip.ret,
+    createdAt:new Date().toISOString(),
+    // 旅行の全データをスナップショットとして複製保存
+    trip:JSON.parse(JSON.stringify(STATE.trip)),
+    transport:JSON.parse(JSON.stringify(STATE.transport)),
+    events:JSON.parse(JSON.stringify(STATE.events)),
+    checklist:JSON.parse(JSON.stringify(STATE.checklist)),
+    checked:JSON.parse(JSON.stringify(STATE.checked)),
+    budget:JSON.parse(JSON.stringify(STATE.budget)),
+    hotels:JSON.parse(JSON.stringify(STATE.hotels)),
+    contacts:JSON.parse(JSON.stringify(STATE.contacts)),
+    photos:JSON.parse(JSON.stringify(STATE.photos))
+  }
+  STATE.albums.unshift(album)
+
+  // 新規旅行用に初期化（メンバー入力等は最低限残す形でリセット）
+  const fresh=buildDefaultState()
+  STATE.trip=fresh.trip
+  STATE.transport=fresh.transport
+  STATE.events=fresh.events
+  STATE.checklist=fresh.checklist
+  STATE.checked=fresh.checked
+  STATE.budget=fresh.budget
+  STATE.hotels=fresh.hotels
+  STATE.photos=fresh.photos
+  STATE.contacts=fresh.contacts
+  STATE.activeTab='overview'
+  STATE.activePerson=null
+  STATE.activeAlbumId=null
+  weatherCache=null;weatherDates=[]
+
+  closeModal('modal-finish')
+  switchTab('overview')
+  renderAll()
+  persistState()
 }
 
 // ── INLINE EDIT (overview fields) ──
@@ -729,14 +1093,20 @@ function startEdit(field){
   if(!row)return
   let html=''
   if(field==='title'){
-    html=`<input class="ie-input" id="ie-${field}" type="text" value="${esc(STATE.trip.title)}" style="width:160px;text-align:right"><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
+    html=`<input class="ie-input" id="ie-${field}" type="text" value="${esc(STATE.trip.title)}" placeholder="例: 沖縄家族旅行" style="width:160px;text-align:right"><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
   } else if(field==='dest'){
-    html=`<input class="ie-input" id="ie-${field}" type="text" value="${esc(STATE.trip.dest)}" style="width:120px;text-align:right"><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
+    html=`<input class="ie-input" id="ie-${field}" type="text" value="${esc(STATE.trip.dest)}" placeholder="例: 沖縄県" style="width:120px;text-align:right"><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
   } else if(field==='dep'||field==='ret'){
-    const p=parseJpDate(field==='dep'?STATE.trip.dep:STATE.trip.ret)||{y:2025,mo:8,d:11}
-    html=`<select class="ie-select" id="ie-${field}-y">${genYearOptions(p.y)}</select><select class="ie-select" id="ie-${field}-mo">${genMonthOptions(p.mo)}</select><select class="ie-select" id="ie-${field}-d">${genDayOptions(p.d)}</select><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
+    const p=parseJpDate(field==='dep'?STATE.trip.dep:STATE.trip.ret)
+    html=`<select class="ie-select" id="ie-${field}-y">${genYearOptions(p?p.y:'')}</select><select class="ie-select" id="ie-${field}-mo">${genMonthOptions(p?p.mo:'')}</select><select class="ie-select" id="ie-${field}-d">${genDayOptions(p?p.d:'')}</select><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
   } else if(field==='members'){
-    html=`<input class="ie-input" id="ie-${field}" type="text" value="${esc(STATE.trip.members.join('、'))}" style="width:180px;text-align:right" placeholder="カンマ・読点区切り"><button class="ie-save" onclick="saveEdit('${field}')">保存</button>`
+    html=`<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+      <div style="display:flex;gap:6px;align-items:center">
+        <input class="ie-input" id="ie-${field}" type="text" value="${esc(STATE.trip.members.join('、'))}" style="width:180px;text-align:right" placeholder="例: パパ、ママ、太郎">
+        <button class="ie-save" onclick="saveEdit('${field}')">保存</button>
+      </div>
+      <div style="font-size:9px;color:var(--text3);letter-spacing:0.04em">カンマ・読点区切り</div>
+    </div>`
   }
   const wrap=row.querySelector('.edit-val-wrap')
   wrap.innerHTML=html
@@ -761,29 +1131,25 @@ function closeEdit(){
 }
 function saveEdit(field){
   if(field==='title'){
-    const v=document.getElementById('ie-title')?.value.trim();if(v){STATE.trip.title=v;document.getElementById('trip-title').textContent=v}
+    const v=document.getElementById('ie-title')?.value.trim()||'';STATE.trip.title=v;document.getElementById('trip-title').textContent=v||'旅行名未設定'
   } else if(field==='dest'){
-    const v=document.getElementById('ie-dest')?.value.trim();if(v)STATE.trip.dest=v
+    const v=document.getElementById('ie-dest')?.value.trim()||'';STATE.trip.dest=v
   } else if(field==='dep'||field==='ret'){
     const y=document.getElementById(`ie-${field}-y`)?.value
     const mo=document.getElementById(`ie-${field}-mo`)?.value
     const d=document.getElementById(`ie-${field}-d`)?.value
-    if(y&&mo&&d){
-      const jd=toJpDate(y,mo,d)
-      if(field==='dep')STATE.trip.dep=jd;else STATE.trip.ret=jd
-      calcDaysFromDates()
-      updateHeaderSub()
-      updateTripStatus()
-      weatherCache=null;weatherDates=[]
-      renderOverviewWeather()
-    }
+    const jd=(y&&mo&&d)?toJpDate(y,mo,d):''
+    if(field==='dep')STATE.trip.dep=jd;else STATE.trip.ret=jd
+    calcDaysFromDates()
+    updateHeaderSub()
+    updateTripStatus()
+    weatherCache=null;weatherDates=[]
+    renderOverviewWeather()
   } else if(field==='members'){
     const v=splitMembers(document.getElementById('ie-members')?.value||'')
-    if(v.length){
-      v.forEach((m,i)=>{if(!STATE.checklist[m]){const docs=['パスポート','ビザ','航空券・乗車券','入場チケット','運転免許証','健康保険証','学生証'];if(i===0)docs.push('旅行保険証','ホテル予約確認書');STATE.checklist[m]={'書類・チケット':docs,'衣類':['下着','肌着','くつ下','Tシャツ','水着','サンダル'],'洗面・衛生用品':['日焼け止め','歯ブラシセット','タオル・ハンカチ'],'移動中':['イヤホン'],'その他':['現金','充電器類']}}})
-      STATE.trip.members=v
-      document.getElementById('ov-members').textContent=v.length
-    }
+    v.forEach((m,i)=>{if(!STATE.checklist[m]){const docs=['パスポート','ビザ','航空券・乗車券','入場チケット','運転免許証','健康保険証','学生証'];if(i===0)docs.push('旅行保険証','ホテル予約確認書');STATE.checklist[m]={'書類・チケット':docs,'衣類':['下着','肌着','くつ下','Tシャツ','水着','サンダル'],'洗面・衛生用品':['日焼け止め','歯ブラシセット','タオル・ハンカチ'],'移動中':['イヤホン'],'その他':['現金','充電器類']}}})
+    STATE.trip.members=v
+    document.getElementById('ov-members').textContent=v.length
   }
   currentEditField=null
   // 保存完了フラッシュ: フィールドを更新してから「保存済み」を一瞬表示
@@ -800,6 +1166,8 @@ function saveEdit(field){
     setTimeout(()=>{savedFlash.style.opacity='0'},1200)
     setTimeout(()=>{savedFlash.remove()},1800)
   }
+  updateTripStatus()
+  scheduleSave()
 }
 function updateHeaderSub(){
   const el=document.getElementById('trip-dates')
@@ -807,26 +1175,39 @@ function updateHeaderSub(){
 }
 function renderOverviewFields(){
   const flds=[
-    ['ef-title','ev-title',()=>STATE.trip.title,"startEdit('title')"],
-    ['ef-dest','ev-dest',()=>STATE.trip.dest,"startEdit('dest')"],
-    ['ef-dep','ev-dep',()=>STATE.trip.dep,"startEdit('dep')"],
-    ['ef-ret','ev-ret',()=>STATE.trip.ret,"startEdit('ret')"],
-    ['ef-members','ev-members',()=>STATE.trip.members.join('、'),"startEdit('members')"]
+    ['ev-title',()=>STATE.trip.title,'旅行名を入力'],
+    ['ev-dest',()=>STATE.trip.dest,'目的地を入力'],
+    ['ev-dep',()=>STATE.trip.dep,'出発日を選択'],
+    ['ev-ret',()=>STATE.trip.ret,'帰着日を選択'],
+    ['ev-members',()=>STATE.trip.members.join('、'),'メンバーを入力']
   ]
-  flds.forEach(([,valId,getVal])=>{const el=document.getElementById(valId);if(el)el.textContent=getVal()})
+  flds.forEach(([valId,getVal,placeholder])=>{
+    const el=document.getElementById(valId);if(!el)return
+    const v=getVal()
+    if(v){el.textContent=v;el.classList.remove('ev-placeholder')}
+    else{el.textContent=placeholder;el.classList.add('ev-placeholder')}
+  })
 }
 
 // ── DAYS PICKER ──
-function openDaysPicker(){
-  const wrap=document.getElementById('days-picker-wrap')
-  if(wrap.innerHTML){wrap.innerHTML='';return}
+function startEditDays(){
+  const el=document.getElementById('ov-days-tap')
+  if(!el||el.querySelector('select'))return
   let opts='';for(let i=1;i<=99;i++)opts+=`<option value="${i}"${i===STATE.trip.days?' selected':''}>${i}</option>`
-  wrap.innerHTML=`<div class="iep" style="margin-bottom:12px"><div class="ff"><label class="fl">日数を選択</label><select class="fi" id="days-sel">${opts}</select></div><div class="iep-btns"><button class="iep-cancel" onclick="document.getElementById('days-picker-wrap').innerHTML=''">キャンセル</button><button class="iep-save" onclick="saveDays()">保存</button></div></div>`
+  el.innerHTML=`<select class="ie-select" id="days-inline-sel" style="font-family:inherit;font-size:18px;font-weight:600">${opts}</select>`
+  const sel=document.getElementById('days-inline-sel')
+  sel.focus()
+  sel.addEventListener('change',saveDaysInline)
+  sel.addEventListener('blur',()=>setTimeout(saveDaysInline,100))
 }
-function saveDays(){
-  const v=parseInt(document.getElementById('days-sel').value)
-  if(v){STATE.trip.days=v;document.getElementById('ov-days-tap').textContent=v;updateHeaderSub()}
-  document.getElementById('days-picker-wrap').innerHTML=''
+function saveDaysInline(){
+  const sel=document.getElementById('days-inline-sel')
+  if(!sel)return
+  const v=parseInt(sel.value)
+  if(v){STATE.trip.days=v;updateHeaderSub()}
+  const el=document.getElementById('ov-days-tap')
+  if(el)el.textContent=STATE.trip.days
+  scheduleSave()
 }
 
 // ── PROGRESS COLORS ──
@@ -841,7 +1222,8 @@ function progressColor(pct){
 function renderOverview(){
   updateTripStatus()
   const members=STATE.trip.members
-  document.getElementById('ov-days-tap').textContent=STATE.trip.days
+  const daysEl=document.getElementById('ov-days-tap')
+  if(daysEl&&!daysEl.querySelector('select'))daysEl.textContent=STATE.trip.days
   document.getElementById('ov-members').textContent=members.length
   document.getElementById('trip-title').textContent=STATE.trip.title
   updateHeaderSub()
@@ -865,6 +1247,47 @@ function renderOverview(){
   tv.textContent=pct===100?'完了！':pct+'%'
   if(pct===100){tc.classList.add('complete');tf.style.background='linear-gradient(to top right,#9A7B3A,#C9A962,#E8D5A8)'}
   else{tc.classList.remove('complete')}
+
+  renderOverviewPastAlbums()
+}
+
+// 概要タブ下部：過去アルバム一覧（簡易プレビュー）
+function renderOverviewPastAlbums(){
+  const wrap=document.getElementById('ov-past-albums-wrap')
+  if(!wrap)return
+  if(!STATE.albums.length){wrap.innerHTML='';return}
+  const list=STATE.albums.slice(0,3)
+  wrap.innerHTML=`
+    <div class="albums-section-label">過去の思い出</div>
+    ${list.map(a=>albumCardHtml(a)).join('')}
+    ${STATE.albums.length>3?`<button class="add-btn" onclick="switchTab('albums')">すべての思い出を見る（${STATE.albums.length}件）</button>`:''}
+  `
+}
+
+function albumCoverPhoto(a){
+  const p=(a.photos||[]).find(x=>x&&x.src&&x.type!=='video')||(a.photos||[]).find(x=>x&&x.src)
+  return p
+}
+function albumCardHtml(a){
+  const cover=albumCoverPhoto(a)
+  const coverHtml=cover
+    ? (cover.type==='video'
+        ? `<video src="${cover.src}" muted playsinline></video>`
+        : `<img src="${cover.src}" alt="">`)
+    : `<div class="album-cover-empty">No Photo</div>`
+  return `<div class="album-card" onclick="openAlbum('${a.id}')">
+    <div class="album-cover">
+      ${coverHtml}
+      <div class="album-cover-overlay">
+        <div class="album-title">${esc(a.title)}</div>
+        <div class="album-dates">${esc(a.dep||'')} 〜 ${esc(a.ret||'')}</div>
+      </div>
+    </div>
+    <div class="album-meta-row">
+      <span>📍 ${esc(a.dest||'目的地未設定')}</span>
+      <span>📷 ${(a.photos||[]).length}件</span>
+    </div>
+  </div>`
 }
 
 // ── TRANSPORT ──
@@ -938,11 +1361,13 @@ function saveFlightField(){
     STATE.transport.flight[dir].time=document.getElementById(`fl-${dir}-time`)?.value||''
     STATE.transport.flight[dir].arr=document.getElementById(`fl-${dir}-arr`)?.value||''
   })
+  scheduleSave()
 }
 function saveTransport(type,dir,fld){
   const pfx={'train':'tr','bus':'bs','car':'cr'}[type]
   const el=document.getElementById(`${pfx}-${dir}-${fld}`)
   if(el)STATE.transport[type][dir][fld]=el.value
+  scheduleSave()
 }
 function openAddTransport(){
   alert('交通機関の追加は各カードの往路・復路に直接入力してください。\n\n別の交通手段が必要な場合は「旅程」タブで予定として追加できます。')
@@ -1106,7 +1531,7 @@ function injectPanel(afterEl,contentHtml,saveCb){
   afterEl.insertAdjacentElement('afterend',panel)
   currentPanel=panel
   panel.querySelector('.iep-cancel').onclick=closeCurrentPanel
-  panel.querySelector('.iep-save').onclick=()=>{saveCb(panel);closeCurrentPanel()}
+  panel.querySelector('.iep-save').onclick=()=>{saveCb(panel);closeCurrentPanel();scheduleSave()}
 }
 
 function evPanelHtml(date,ev){
@@ -1137,7 +1562,7 @@ function editEvent(day,ei,di){
     renderDays()
   })
 }
-function deleteEvent(day,ei){if(confirm('この予定を削除しますか？')){STATE.events[day].splice(ei,1);renderDays()}}
+function deleteEvent(day,ei){if(confirm('この予定を削除しますか？')){STATE.events[day].splice(ei,1);renderDays();scheduleSave()}}
 function openAddEvent(){
   closeCurrentPanel()
   const container=document.getElementById('days-list')
@@ -1160,7 +1585,7 @@ function renderPersonTabs(){
   if(!STATE.activePerson||!members.includes(STATE.activePerson))STATE.activePerson=members[0]
   tabs.innerHTML=members.map(m=>`<button class="person-tab${m===STATE.activePerson?' active':''}" onclick="selectPerson('${esc(m)}')">${esc(m)}</button>`).join('')
 }
-function selectPerson(p){STATE.activePerson=p;renderPersonTabs();renderChecklist()}
+function selectPerson(p){STATE.activePerson=p;renderPersonTabs();renderChecklist();scheduleSave()}
 function renderChecklist(){
   const body=document.getElementById('checklist-body'),person=STATE.activePerson
   const cats=STATE.checklist[person]||{}
@@ -1169,11 +1594,10 @@ function renderChecklist(){
     html+=`<div class="check-group-label">${esc(cat)}</div>`
     items.forEach((item,idx)=>{
       const key=`${person}:${cat}:${idx}`,done=STATE.checked[key]
-      html+=`<div class="check-item">
+      html+=`<div class="check-item" id="check-item-${esc(person)}-${esc(cat)}-${idx}">
         <div class="checkmark${done?' done':''}" onclick="toggleCheck('${key}')"></div>
-        <span class="check-label${done?' done':''}" onclick="toggleCheck('${key}')">${esc(item)}</span>
+        <span class="check-label${done?' done':''}" id="check-label-${esc(person)}-${esc(cat)}-${idx}" onclick="startEditItem('${esc(person)}','${esc(cat)}',${idx})">${esc(item)}</span>
         <div class="check-item-actions">
-          <button type="button" class="check-edit-btn" onclick="editItem('${esc(person)}','${esc(cat)}',${idx})">編集</button>
           <button type="button" class="check-del-btn" onclick="deleteItem('${esc(person)}','${esc(cat)}',${idx})">削除</button>
         </div>
       </div>`
@@ -1181,55 +1605,79 @@ function renderChecklist(){
   }
   body.innerHTML=html||'<div class="empty">持ち物がありません</div>'
 }
-function toggleCheck(key){STATE.checked[key]=!STATE.checked[key];renderChecklist();renderOverview()}
-function editItem(person,cat,idx){
-  const rows=document.querySelectorAll('#checklist-body .check-item')
-  let counter=0,targetRow=null
-  outer:for(const[c,items]of Object.entries(STATE.checklist[person]||{})){for(let i=0;i<items.length;i++){if(c===cat&&i===idx){targetRow=rows[counter];break outer}counter++}}
-  if(!targetRow)return
-  const pOpts=STATE.trip.members.map(m=>`<option value="${m}"${m===person?' selected':''}>${m}</option>`).join('')
-  const cOpts=['書類・チケット','衣類','洗面・衛生用品','移動中','その他'].map(c=>`<option value="${c}"${c===cat?' selected':''}>${c}</option>`).join('')
-  injectPanel(targetRow,`
-    <div class="ff"><label class="fl">メンバー</label><select class="fi" data-f="person">${pOpts}</select></div>
-    <div class="ff"><label class="fl">カテゴリ</label><select class="fi" data-f="cat">${cOpts}</select></div>
-    <div class="ff"><label class="fl">持ち物名</label><input class="fi" type="text" data-f="name" value="${esc(STATE.checklist[person][cat][idx])}"></div>`,
-  (panel)=>{
-    const np=panel.querySelector('[data-f="person"]').value,nc=panel.querySelector('[data-f="cat"]').value,nn=panel.querySelector('[data-f="name"]').value.trim()
-    if(!nn){alert('持ち物名を入力してください');return}
-    STATE.checklist[person][cat].splice(idx,1)
-    if(STATE.checklist[person][cat].length===0)delete STATE.checklist[person][cat]
-    if(!STATE.checklist[np])STATE.checklist[np]={}
-    if(!STATE.checklist[np][nc])STATE.checklist[np][nc]=[]
-    STATE.checklist[np][nc].push(nn)
-    renderPersonTabs();renderChecklist();renderOverview()
-  })
+function toggleCheck(key){STATE.checked[key]=!STATE.checked[key];renderChecklist();renderOverview();scheduleSave()}
+
+let currentEditItemKey=null
+function startEditItem(person,cat,idx){
+  const itemKey=`${person}:${cat}:${idx}`
+  if(currentEditItemKey===itemKey){return}
+  if(currentEditItemKey)renderChecklist() // 他の編集中だったものを閉じる
+  currentEditItemKey=itemKey
+  const labelEl=document.getElementById(`check-label-${person}-${cat}-${idx}`)
+  if(!labelEl)return
+  const current=STATE.checklist[person][cat][idx]
+  const span=labelEl.parentElement
+  const actionsDiv=span.querySelector('.check-item-actions')
+  labelEl.outerHTML=`<span style="flex:1;display:flex;gap:6px;align-items:center" id="check-edit-wrap-${person}-${cat}-${idx}">
+    <input class="ie-input" id="check-input-${person}-${cat}-${idx}" type="text" value="${esc(current)}" style="flex:1;min-width:0">
+    <button class="ie-save" onclick="saveEditItem('${person}','${cat}',${idx})">保存</button>
+  </span>`
+  const input=document.getElementById(`check-input-${person}-${cat}-${idx}`)
+  if(input){input.focus();input.select()}
+}
+function saveEditItem(person,cat,idx){
+  const input=document.getElementById(`check-input-${person}-${cat}-${idx}`)
+  if(!input)return
+  const v=input.value.trim()
+  if(v)STATE.checklist[person][cat][idx]=v
+  currentEditItemKey=null
+  renderChecklist()
+  // 保存済みフラッシュ
+  const labelEl=document.getElementById(`check-label-${person}-${cat}-${idx}`)
+  if(labelEl){
+    const flash=document.createElement('span')
+    flash.textContent='✓ 保存済み'
+    flash.style.cssText='font-size:10px;font-weight:600;color:var(--sage);letter-spacing:0.06em;margin-left:6px;opacity:1;transition:opacity 0.5s'
+    labelEl.insertAdjacentElement('afterend',flash)
+    setTimeout(()=>{flash.style.opacity='0'},1200)
+    setTimeout(()=>{flash.remove()},1800)
+  }
+  scheduleSave()
 }
 function deleteItem(person,cat,idx){
-  if(confirm('この持ち物を削除しますか？')){
-    STATE.checklist[person][cat].splice(idx,1)
-    if(STATE.checklist[person][cat].length===0)delete STATE.checklist[person][cat]
-    renderChecklist();renderOverview()
-  }
+  if(!confirm('この持ち物を削除しますか？'))return
+  STATE.checklist[person][cat].splice(idx,1)
+  delete STATE.checked[`${person}:${cat}:${idx}`]
+  // インデックスがズレるのでchecked状態を振り直し
+  const remaining={}
+  Object.keys(STATE.checked).forEach(k=>{
+    const m=k.match(new RegExp(`^${person.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}:${cat.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')}:(\\d+)$`))
+    if(m){
+      const oldIdx=parseInt(m[1])
+      if(oldIdx>idx){remaining[`${person}:${cat}:${oldIdx-1}`]=STATE.checked[k]}
+      else if(oldIdx<idx){remaining[k]=STATE.checked[k]}
+    } else {
+      remaining[k]=STATE.checked[k]
+    }
+  })
+  STATE.checked=remaining
+  if(STATE.checklist[person][cat].length===0)delete STATE.checklist[person][cat]
+  currentEditItemKey=null
+  renderChecklist();renderOverview();scheduleSave()
 }
 function openAddItem(){
-  closeCurrentPanel()
-  const body=document.getElementById('checklist-body')
-  const dummy=document.createElement('div')
-  body.appendChild(dummy)
-  const pOpts=STATE.trip.members.map(m=>`<option value="${m}"${m===STATE.activePerson?' selected':''}>${m}</option>`).join('')
-  const cOpts=['書類・チケット','衣類','洗面・衛生用品','移動中','その他'].map(c=>`<option value="${c}">${c}</option>`).join('')
-  injectPanel(dummy,`
-    <div class="ff"><label class="fl">メンバー</label><select class="fi" data-f="person">${pOpts}</select></div>
-    <div class="ff"><label class="fl">カテゴリ</label><select class="fi" data-f="cat">${cOpts}</select></div>
-    <div class="ff"><label class="fl">持ち物名</label><input class="fi" type="text" data-f="name" placeholder="持ち物名を入力"></div>`,
-  (panel)=>{
-    const np=panel.querySelector('[data-f="person"]').value,nc=panel.querySelector('[data-f="cat"]').value,nn=panel.querySelector('[data-f="name"]').value.trim()
-    if(!nn){alert('持ち物名を入力してください');return}
-    if(!STATE.checklist[np])STATE.checklist[np]={}
-    if(!STATE.checklist[np][nc])STATE.checklist[np][nc]=[]
-    STATE.checklist[np][nc].push(nn)
-    dummy.remove();renderPersonTabs();renderChecklist();renderOverview()
-  })
+  const person=STATE.activePerson
+  if(!person){alert('先にメンバーを設定してください');return}
+  if(!STATE.checklist[person])STATE.checklist[person]={}
+  const cat='その他'
+  if(!STATE.checklist[person][cat])STATE.checklist[person][cat]=[]
+  STATE.checklist[person][cat].push('新しい持ち物')
+  renderChecklist();renderOverview();scheduleSave()
+  // 追加した項目をすぐ編集状態にする
+  setTimeout(()=>{
+    const idx=STATE.checklist[person][cat].length-1
+    startEditItem(person,cat,idx)
+  },50)
 }
 
 // ── BUDGET ──
@@ -1273,7 +1721,7 @@ function editExpense(i){
     STATE.budget.expenses[i]=exp;renderBudget()
   })
 }
-function deleteExpense(i){if(confirm('この支出を削除しますか？')){STATE.budget.expenses.splice(i,1);renderBudget()}}
+function deleteExpense(i){if(confirm('この支出を削除しますか？')){STATE.budget.expenses.splice(i,1);renderBudget();scheduleSave()}}
 function openAddExpense(){
   closeCurrentPanel()
   const list=document.getElementById('expenses-list')
@@ -1359,6 +1807,7 @@ function htSaveEdit(hi,field){
     const r=document.getElementById('ht-'+hi+'-'+field)
     if(r)htSavedFlash(r)
   },30)
+  scheduleSave()
 }
 function renderHotelInline(hi){
   const h=STATE.hotels[hi]
@@ -1397,56 +1846,15 @@ function renderHotels(){
   container.innerHTML=STATE.hotels.map((_,i)=>`<div class="card" id="ht-card-${i}"></div>`).join('')
   STATE.hotels.forEach((_,i)=>renderHotelInline(i))
 }
-function deleteHotel(i){if(confirm('この宿泊先を削除しますか？')){STATE.hotels.splice(i,1);renderHotels()}}
+function deleteHotel(i){if(confirm('この宿泊先を削除しますか？')){STATE.hotels.splice(i,1);renderHotels();scheduleSave()}}
 function openAddHotel(){
   closeCurrentPanel()
-  const container=document.getElementById('hotels-list')
-  const dummy=document.createElement('div')
-  container.appendChild(dummy)
-  // blank hotel
-  const cinP=parseJpDate(STATE.trip.dep)||{y:2025,mo:8,d:11}
-  const coutP=parseJpDate(STATE.trip.ret)||{y:2025,mo:8,d:15}
-  const yr=String(cinP.y)
-  injectPanel(dummy,`
-    <div class="ff"><label class="fl">ホテル名</label><input class="fi" type="text" data-f="name" placeholder="ホテル名"></div>
-    <div class="ff"><label class="fl">住所</label><input class="fi" type="text" data-f="addr" placeholder="住所"></div>
-    <div class="ff"><label class="fl">チェックイン　月・日・時刻</label>
-      <span style="display:flex;gap:5px;flex-wrap:wrap">
-        <select class="fi" data-f="cin-mo" style="flex:1">${genMonthOptions(cinP.mo)}</select>
-        <select class="fi" data-f="cin-d" style="flex:1">${genDayOptions(cinP.d)}</select>
-        <select class="fi" data-f="cin-time" style="flex:1">${genTimeOptions('')}</select>
-      </span>
-    </div>
-    <div class="ff"><label class="fl">チェックアウト　月・日・時刻</label>
-      <span style="display:flex;gap:5px;flex-wrap:wrap">
-        <select class="fi" data-f="cout-mo" style="flex:1">${genMonthOptions(coutP.mo)}</select>
-        <select class="fi" data-f="cout-d" style="flex:1">${genDayOptions(coutP.d)}</select>
-        <select class="fi" data-f="cout-time" style="flex:1">${genTimeOptions('')}</select>
-      </span>
-    </div>
-    <div class="ff"><label class="fl">電話（任意）</label><input class="fi" type="tel" data-f="tel" placeholder="098-xxx-xxxx"></div>
-    <div class="ff"><label class="fl">予約番号（任意）</label><input class="fi" type="text" data-f="rsv" placeholder="予約番号"></div>
-    <div class="ff"><label class="fl">地図リンク（任意）</label><input class="fi" type="text" data-f="map" placeholder="Google Maps URL"></div>
-    <div class="ff"><label class="fl">メモ（任意）</label><input class="fi" type="text" data-f="note" placeholder="Wi-Fiパスワード等"></div>`,
-  (panel)=>{
-    const cinMo=panel.querySelector('[data-f="cin-mo"]').value,cinD=panel.querySelector('[data-f="cin-d"]').value
-    const coutMo=panel.querySelector('[data-f="cout-mo"]').value,coutD=panel.querySelector('[data-f="cout-d"]').value
-    const h={
-      name:panel.querySelector('[data-f="name"]').value.trim(),
-      addr:panel.querySelector('[data-f="addr"]').value.trim(),
-      cinDate:toJpDate(yr,cinMo,cinD),cinTime:panel.querySelector('[data-f="cin-time"]').value,
-      coutDate:toJpDate(yr,coutMo,coutD),coutTime:panel.querySelector('[data-f="cout-time"]').value,
-      tel:panel.querySelector('[data-f="tel"]').value.trim(),
-      rsv:panel.querySelector('[data-f="rsv"]').value.trim(),
-      map:panel.querySelector('[data-f="map"]').value.trim(),
-      note:panel.querySelector('[data-f="note"]').value.trim()
-    }
-    if(!h.name){alert('ホテル名を入力してください');return}
-    STATE.hotels.push(h);dummy.remove();renderHotels()
-  })
+  STATE.hotels.push({name:'',addr:'',cinDate:'',cinTime:'',coutDate:'',coutTime:'',tel:'',rsv:'',map:'',note:''})
+  renderHotels()
+  scheduleSave()
 }
 
-// ── PHOTOS ──
+// ── PHOTOS（写真・動画タブ） ──
 function renderPhotoThumb(p,i){
   const cap=p.caption?`<div class="photo-caption">${esc(p.caption)}</div>`:''
   if(isVideoMedia(p))return`<div class="photo-thumb" onclick="viewPhoto(${i})"><video src="${p.src}" muted playsinline preload="metadata"></video><span class="photo-type-badge">動画</span>${cap}</div>`
@@ -1484,14 +1892,34 @@ function savePhoto(){
   files.forEach(file=>{
     const reader=new FileReader()
     reader.onload=ev=>{
-      STATE.photos.push({type:file.type.startsWith('video/')?'video':'image',mime:file.type,src:ev.target.result,caption:processed===0?caption:''})
-      if(++processed>=files.length){STATE.pendingPhotos=[];document.getElementById('photo-preview-wrap').innerHTML='';closeModal('modal-photo');renderPhotos()}
+      const mediaObj={type:file.type.startsWith('video/')?'video':'image',mime:file.type,src:ev.target.result,caption:processed===0?caption:''}
+      if(STATE.activeAlbumId){
+        // アルバム詳細画面から追加した場合はアルバム側に保存
+        const album=STATE.albums.find(a=>a.id===STATE.activeAlbumId)
+        if(album){if(!album.photos)album.photos=[];album.photos.push(mediaObj)}
+      } else {
+        STATE.photos.push(mediaObj)
+      }
+      if(++processed>=files.length){
+        STATE.pendingPhotos=[];document.getElementById('photo-preview-wrap').innerHTML='';closeModal('modal-photo')
+        if(STATE.activeAlbumId){renderAlbumDetail(STATE.activeAlbumId)}else{renderPhotos()}
+        scheduleSave()
+      }
     }
     reader.readAsDataURL(file)
   })
 }
 function viewPhoto(i){
   const p=normalizeMedia(STATE.photos[i]);if(!p)return
+  const img=document.getElementById('photo-viewer-img'),vid=document.getElementById('photo-viewer-video')
+  if(isVideoMedia(p)){img.style.display='none';img.removeAttribute('src');vid.style.display='block';vid.src=p.src;vid.load()}
+  else{vid.pause();vid.removeAttribute('src');vid.style.display='none';img.style.display='block';img.src=p.src}
+  document.getElementById('photo-viewer-cap').textContent=p.caption||''
+  document.getElementById('photo-viewer').classList.add('open')
+}
+function viewAlbumPhoto(albumId,i){
+  const album=STATE.albums.find(a=>a.id===albumId);if(!album)return
+  const p=normalizeMedia(album.photos[i]);if(!p)return
   const img=document.getElementById('photo-viewer-img'),vid=document.getElementById('photo-viewer-video')
   if(isVideoMedia(p)){img.style.display='none';img.removeAttribute('src');vid.style.display='block';vid.src=p.src;vid.load()}
   else{vid.pause();vid.removeAttribute('src');vid.style.display='none';img.style.display='block';img.src=p.src}
@@ -1506,56 +1934,83 @@ function closePhotoViewer(){
 }
 
 // ── CONTACTS ──
+function ctSavedFlash(rowEl){
+  const wrap=rowEl.querySelector('.ht-val-wrap')
+  if(!wrap)return
+  let fl=wrap.querySelector('.ht-saved')
+  if(!fl){fl=document.createElement('span');fl.className='ht-saved';fl.textContent='✓';wrap.appendChild(fl)}
+  fl.style.opacity='1'
+  setTimeout(()=>{fl.style.opacity='0'},1200)
+}
+function ctStartEdit(ci,field){
+  const row=document.getElementById('ct-'+ci+'-'+field)
+  if(!row)return
+  const wrap=row.querySelector('.ht-val-wrap')
+  if(wrap.querySelector('input')){ctCancelEdit(ci);return}
+  const c=STATE.contacts[ci]
+  const type=field==='tel'?'tel':'text'
+  const placeholder={name:'例: 宿泊先ホテル',role:'例: 宿泊先 / 病院 / 警察',tel:'例: 098-999-9999',note:'メモ'}[field]||''
+  wrap.innerHTML=`<input class="ie-input" style="flex:1;min-width:100px;text-align:right" type="${type}" value="${esc(c[field]||'')}" placeholder="${placeholder}"><button class="ie-save" onclick="ctSaveEdit(${ci},'${field}')">保存</button>`
+  const first=wrap.querySelector('input')
+  if(first)first.focus()
+}
+function ctCancelEdit(ci){renderContactInline(ci)}
+function ctSaveEdit(ci,field){
+  const row=document.getElementById('ct-'+ci+'-'+field)
+  if(!row)return
+  const wrap=row.querySelector('.ht-val-wrap')
+  const c=STATE.contacts[ci]
+  const v=wrap.querySelector('input')?.value.trim()
+  if(v!==undefined)c[field]=v
+  renderContactInline(ci)
+  setTimeout(()=>{const r=document.getElementById('ct-'+ci+'-'+field);if(r)ctSavedFlash(r)},30)
+  scheduleSave()
+}
+function renderContactInline(ci){
+  const c=STATE.contacts[ci]
+  const card=document.getElementById('ct-card-'+ci)
+  if(!card)return
+  const fields=[
+    {key:'name',label:'名前/機関名',val:()=>c.name||'（未入力）'},
+    {key:'role',label:'役割・種別',val:()=>c.role||'—'},
+    {key:'tel',label:'電話番号',val:()=>c.tel||'—'},
+    {key:'note',label:'メモ',val:()=>c.note||'—'},
+  ]
+  const rowsHtml=fields.map(f=>`
+    <div class="ht-edit-row" id="ct-${ci}-${f.key}">
+      <span class="ht-key">${f.label}</span>
+      <span class="ht-val-wrap">
+        <span class="ev-text" onclick="ctStartEdit(${ci},'${f.key}')" title="タップして編集">${esc(f.val())}</span>
+        <span class="ht-saved"></span>
+      </span>
+    </div>`).join('')
+  const telLink=c.tel?`<a class="contact-tel" href="tel:${esc(c.tel)}" style="display:inline-block;margin-top:8px">📞 ${esc(c.tel)}に発信</a>`:''
+  card.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+      <div class="hotel-name" style="font-size:17px">${esc(c.name||'連絡先')}</div>
+      <button type="button" class="check-del-btn" onclick="deleteContact(${ci})">削除</button>
+    </div>
+    ${rowsHtml}
+    ${telLink}`
+}
 function renderContacts(){
   const list=document.getElementById('contacts-list')
   if(!STATE.contacts.length){list.innerHTML='<div class="empty">連絡先がありません</div>';return}
-  list.innerHTML=STATE.contacts.map((c,i)=>`
-    <div class="contact-row" id="ct-row-${i}">
-      <div class="contact-info"><div class="contact-name">${esc(c.name)}</div><div class="contact-role">${esc(c.role)}${c.note?' · '+esc(c.note):''}</div></div>
-      <a class="contact-tel" href="tel:${esc(c.tel)}">${esc(c.tel)}</a>
-      <div class="row-actions">
-        <button type="button" class="check-edit-btn" onclick="editContact(${i})">編集</button>
-        <button type="button" class="check-del-btn" onclick="deleteContact(${i})">削除</button>
-      </div>
-    </div>`).join('')
+  list.innerHTML=STATE.contacts.map((_,i)=>`<div class="card" id="ct-card-${i}"></div>`).join('')
+  STATE.contacts.forEach((_,i)=>renderContactInline(i))
 }
-function contactPanelHtml(c){return`
-  <div class="ff"><label class="fl">名前 / 機関名</label><input class="fi" type="text" data-f="name" value="${esc(c?c.name:'')}" placeholder="例: 宿泊先ホテル"></div>
-  <div class="ff"><label class="fl">役割・種別</label><input class="fi" type="text" data-f="role" value="${esc(c?c.role:'')}" placeholder="例: 宿泊先 / 病院 / 警察"></div>
-  <div class="ff"><label class="fl">電話番号</label><input class="fi" type="tel" data-f="tel" value="${esc(c?c.tel:'')}" placeholder="例: 098-999-9999"></div>
-  <div class="ff"><label class="fl">メモ（任意）</label><input class="fi" type="text" data-f="note" value="${esc(c?c.note||'':'')}" placeholder="メモ"></div>`}
-function editContact(i){
-  const row=document.getElementById(`ct-row-${i}`)
-  injectPanel(row,contactPanelHtml(STATE.contacts[i]),(panel)=>{
-    const c={name:panel.querySelector('[data-f="name"]').value.trim(),role:panel.querySelector('[data-f="role"]').value.trim(),tel:panel.querySelector('[data-f="tel"]').value.trim(),note:panel.querySelector('[data-f="note"]').value.trim()}
-    if(!c.name||!c.tel){alert('名前と電話番号を入力してください');return}
-    STATE.contacts[i]=c;renderContacts()
-  })
-}
-function deleteContact(i){if(confirm('この連絡先を削除しますか？')){STATE.contacts.splice(i,1);renderContacts()}}
+function deleteContact(i){if(confirm('この連絡先を削除しますか？')){STATE.contacts.splice(i,1);renderContacts();scheduleSave()}}
 function openAddContact(){
-  closeCurrentPanel()
-  const list=document.getElementById('contacts-list')
-  const dummy=document.createElement('div')
-  list.appendChild(dummy)
-  injectPanel(dummy,contactPanelHtml(null),(panel)=>{
-    const c={name:panel.querySelector('[data-f="name"]').value.trim(),role:panel.querySelector('[data-f="role"]').value.trim(),tel:panel.querySelector('[data-f="tel"]').value.trim(),note:panel.querySelector('[data-f="note"]').value.trim()}
-    if(!c.name||!c.tel){alert('名前と電話番号を入力してください');return}
-    STATE.contacts.push(c);dummy.remove();renderContacts()
-  })
+  STATE.contacts.push({name:'',role:'',tel:'',note:''})
+  renderContacts()
+  scheduleSave()
 }
 
-// ── SHARE ──
-function renderShare(){document.getElementById('share-url-box').textContent=window.location.href}
-function copyShareUrl(){
-  const url=window.location.href
-  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>{const b=document.getElementById('copy-url-btn');b.textContent='コピー済み';b.classList.add('copied');setTimeout(()=>{b.textContent='コピー';b.classList.remove('copied')},2500)})}
-  else{const ta=document.createElement('textarea');ta.value=url;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);alert('URLをコピーしました')}
-}
+// ── データ管理（エクスポート/インポート：バックアップ用） ──
 function exportData(){
-  const data=JSON.stringify({trip:STATE.trip,transport:STATE.transport,events:STATE.events,checklist:STATE.checklist,checked:STATE.checked,budget:STATE.budget,hotels:STATE.hotels,contacts:STATE.contacts,photos:STATE.photos},null,2)
+  const data=JSON.stringify({trip:STATE.trip,transport:STATE.transport,events:STATE.events,checklist:STATE.checklist,checked:STATE.checked,budget:STATE.budget,hotels:STATE.hotels,contacts:STATE.contacts,photos:STATE.photos,albums:STATE.albums},null,2)
   const blob=new Blob([data],{type:'application/json'}),a=document.createElement('a')
-  a.href=URL.createObjectURL(blob);a.download='tripletto_data.json';a.click();URL.revokeObjectURL(a.href)
+  a.href=URL.createObjectURL(blob);a.download='voyary_data.json';a.click();URL.revokeObjectURL(a.href)
 }
 function importData(e){
   const file=e.target.files[0];if(!file)return
@@ -1563,19 +2018,121 @@ function importData(e){
   reader.onload=ev=>{
     try{
       const data=JSON.parse(ev.target.result)
-      if(data.trip)STATE.trip=data.trip;if(data.transport)STATE.transport=data.transport
-      if(data.events)STATE.events=data.events;if(data.checklist)STATE.checklist=data.checklist
-      if(data.checked)STATE.checked=data.checked;if(data.budget)STATE.budget=data.budget
-      if(data.hotels)STATE.hotels=data.hotels;if(data.contacts)STATE.contacts=data.contacts
-      if(data.photos)STATE.photos=data.photos.map(normalizeMedia).filter(Boolean)
+      applyRestoredState(data)
       renderAll();alert('データをインポートしました')
+      scheduleSave()
     }catch{alert('ファイルの読み込みに失敗しました')}
   }
   reader.readAsText(file);e.target.value=''
 }
-function generateQR(){
-  const url=encodeURIComponent(window.location.href)
-  document.getElementById('qr-output').innerHTML=`<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${url}" alt="QRコード" style="max-width:200px"><div style="font-size:11px;color:var(--text3);margin-top:7px;font-weight:500">スキャンして共有</div>`
+
+// ── ALBUMS（思い出タブ）──
+function renderAlbumsView(){
+  if(STATE.activeAlbumId){
+    renderAlbumDetail(STATE.activeAlbumId)
+  } else {
+    renderAlbumsList()
+  }
+}
+function renderAlbumsList(){
+  const wrap=document.getElementById('albums-view')
+  if(!STATE.albums.length){
+    wrap.innerHTML=`<div class="empty">まだ思い出アルバムがありません。<br>旅行の帰着日を過ぎると、ヘッダーから<br>「思い出にして旅行を終わる」ボタンが押せるようになります。</div>`
+    return
+  }
+  wrap.innerHTML=`
+    <div class="albums-section-label">思い出アルバム（${STATE.albums.length}件）</div>
+    ${STATE.albums.map(a=>albumCardHtml(a)).join('')}
+  `
+}
+function openAlbum(id){
+  STATE.activeAlbumId=id
+  if(STATE.activeTab!=='albums')switchTab('albums')
+  else renderAlbumDetail(id)
+  scheduleSave()
+}
+function closeAlbumDetail(){
+  STATE.activeAlbumId=null
+  renderAlbumsList()
+  scheduleSave()
+}
+function deleteAlbum(id){
+  if(!confirm('このアルバムを削除しますか？元に戻せません。'))return
+  STATE.albums=STATE.albums.filter(a=>a.id!==id)
+  STATE.activeAlbumId=null
+  renderAlbumsList()
+  renderOverviewPastAlbums()
+  scheduleSave()
+}
+function renderAlbumDetail(id){
+  const album=STATE.albums.find(a=>a.id===id)
+  const wrap=document.getElementById('albums-view')
+  if(!album){wrap.innerHTML='<div class="empty">アルバムが見つかりませんでした</div>';STATE.activeAlbumId=null;return}
+  if(!album.photos)album.photos=[]
+
+  const photosHtml=album.photos.map((p,i)=>{
+    const np=normalizeMedia(p);if(!np)return''
+    const cap=np.caption?`<div class="photo-caption">${esc(np.caption)}</div>`:''
+    if(isVideoMedia(np))return`<div class="photo-thumb" onclick="viewAlbumPhoto('${album.id}',${i})"><video src="${np.src}" muted playsinline preload="metadata"></video><span class="photo-type-badge">動画</span>${cap}</div>`
+    return`<div class="photo-thumb" onclick="viewAlbumPhoto('${album.id}',${i})"><img src="${np.src}" alt="">${cap}</div>`
+  }).join('')
+
+  wrap.innerHTML=`
+    <div class="album-detail-header">
+      <button class="album-back-btn" onclick="closeAlbumDetail()">← 一覧に戻る</button>
+      <button class="album-del-btn" onclick="deleteAlbum('${album.id}')">アルバムを削除</button>
+    </div>
+    <div class="card">
+      <div class="hotel-name" style="margin-bottom:4px">${esc(album.title)}</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:14px">📍 ${esc(album.dest||'目的地未設定')} ・ ${esc(album.dep||'')} 〜 ${esc(album.ret||'')}</div>
+      <div class="card-label" style="margin-bottom:10px">写真・動画</div>
+      <div class="photo-grid">
+        ${photosHtml}
+        <div class="photo-add-btns"><button type="button" class="photo-add-btn" onclick="document.getElementById('photo-input').click()">この旅の写真・動画を追加</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-label">旅程メモ</div>
+      ${renderAlbumItineraryReadonly(album)}
+    </div>
+    <div class="card">
+      <div class="card-label">支出記録</div>
+      ${renderAlbumBudgetReadonly(album)}
+    </div>
+  `
+}
+function renderAlbumItineraryReadonly(album){
+  const p=parseJpDate(album.dep)
+  if(!p)return'<div class="empty">旅程データがありません</div>'
+  const days=album.trip.days||1
+  let html=''
+  for(let i=0;i<days;i++){
+    const d=new Date(p.y,p.mo-1,p.d+i)
+    const dateLabel=`${d.getMonth()+1}月${d.getDate()}日`
+    const events=(album.events&&album.events[dateLabel])||[]
+    if(!events.length)continue
+    html+=`<div class="card-sub">${i+1}日目 — ${esc(dateLabel)}</div>`
+    events.forEach(e=>{
+      html+=`<div class="event-row" style="padding:8px 0">
+        <div class="event-time">${esc(e.time||'')}</div>
+        <div class="event-dot" style="background:${e.color||'#C9A962'}"></div>
+        <div class="event-content"><div class="event-title">${esc(e.title||'')}</div>${e.desc?`<div class="event-desc">${esc(e.desc)}</div>`:''}</div>
+      </div>`
+    })
+  }
+  return html||'<div class="empty">記録された予定はありません</div>'
+}
+function renderAlbumBudgetReadonly(album){
+  const expenses=(album.budget&&album.budget.expenses)||[]
+  if(!expenses.length)return'<div class="empty">支出記録はありません</div>'
+  const total=expenses.reduce((s,e)=>s+e.amount,0)
+  return `<div style="font-size:13px;font-weight:600;margin-bottom:10px">合計 ${fmtYen(total)}</div>` +
+    expenses.map(e=>`
+      <div class="expense-row">
+        <div class="expense-cat-dot" style="background:${CAT_COLORS[e.cat]||'#6B7280'}"></div>
+        <div class="expense-info"><div class="expense-name">${esc(e.name)}</div><div class="expense-meta">${esc(e.cat)} · ${esc(e.date)}</div></div>
+        <div class="expense-amount">¥${e.amount.toLocaleString()}</div>
+      </div>`).join('')
 }
 
 // ── MODAL ──
@@ -1705,14 +2262,38 @@ function renderAll(){
   renderOverview()
   if(STATE.activeTab==='transport')initTransportFields()
   renderDays();renderPersonTabs();renderChecklist()
-  renderBudget();renderHotels();renderPhotos();renderContacts();renderShare()
+  renderBudget();renderHotels();renderPhotos();renderContacts()
   if(STATE.activeTab==='overview'&&!weatherCache)renderOverviewWeather()
   if(STATE.activeTab==='itinerary')renderDayWeather()
+  if(STATE.activeTab==='albums')renderAlbumsView()
+  if(STATE.activeTab==='share')renderSyncStatus()
 }
-renderAll()
-initTransportFields()
-// fetch weather on load for itinerary too
-fetchWeather().then(()=>{renderDayWeather()})
+
+// ── 起動シーケンス ──
+// 1) 保存済みデータがあれば復元 → 2) 画面を描画 → 3) タブを正しい位置に反映 → 4) 天気取得
+;(async function boot(){
+  await restoreState()
+  loadFirebaseConfigFromStorage()
+  renderAll()
+  initTransportFields()
+  // activeTabを反映（復元されていれば該当タブをアクティブに）
+  const savedTab=STATE.activeTab||'overview'
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'))
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'))
+  const idx=TAB_ORDER.indexOf(savedTab)
+  if(idx>=0)document.querySelectorAll('.tab')[idx].classList.add('active')
+  const sec=document.getElementById('sec-'+savedTab)
+  if(sec)sec.classList.add('active')
+  // fetch weather on load for itinerary too
+  fetchWeather().then(()=>{renderDayWeather();if(STATE.activeTab==='overview')renderOverviewWeather()})
+  setSaveIndicator('saved')
+  // Firebase設定が既にあれば自動接続（リアルタイム共有を再開）
+  if(fbConfig){
+    const ok=initFirebase()
+    if(ok&&tripCode)connectToTripCode(tripCode)
+  }
+  renderSyncStatus()
+})()
 </script>
 </body>
 </html>
