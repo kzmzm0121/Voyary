@@ -325,9 +325,56 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 .album-del-btn:hover{background:rgba(139,69,69,0.08)}
 
 @media(max-width:400px){.tab{padding:11px 9px;font-size:11px}.photo-grid{grid-template-columns:repeat(2,1fr)}}
+ #voyary-splash{position:fixed;inset:0;background:#fff;z-index:999999;overflow:hidden;}
+ #vs-notebook{position:absolute;width:220px;left:50%;top:50%;transform:
+   translate(-50%,-50%)
+   scale(.8);opacity:0;
+  animation:notebookIn 1s forwards,notebookOut .8s 1.5s forwards;}
+ #vs-globe-wrap{position:absolute;inset:0;opacity:0;animation:globeIn .8s 2s forwards;}
+ #vs-globe{position:absolute;width:420px;left:50%;top:50%;transform:translate(-50%,-50%);}
+ #vs-plane{position:absolute;width:90px;left:50%;top:50%;transform-origin:center center;animation:orbit 3s 2.5s linear forwards;}
+ #vs-logo{position:absolute;width:min(70vw,700px);left:50%;top:15%;transform:
+   translateX(-50%)
+   scale(.8);
+  opacity:0;animation:logoIn 1s 4.7s forwards;}
+ @keyframes notebookIn{from{opacity:0;transform:translate(-50%,-50%)scale(.7);}to{opacity:1;transform:
+      translate(-50%,-50%)
+      scale(1);}}
+ @keyframes notebookOut{to{opacity:0;transform:
+      translate(-50%,-50%)
+      scale(1.3);}}
+ @keyframes globeIn{to{opacity:1;}}
+ @keyframes orbit{0%{transform:
+      translate(-50%,-50%)
+      rotate(0deg)
+      translateX(260px)
+      rotate(20deg);} 
+ 100%{transform:translate(-50%,-50%)
+      rotate(360deg)
+      translateX(260px)
+      rotate(380deg);}}
+ @keyframes logoIn{from{opacity:0;transform:
+      translateX(-50%)
+      scale(.8);}
+ to{opacity:1;transform:
+      translateX(-50%)
+      scale(1);}}
+ #voyary-splash.hide{opacity:0;transition:.8s;pointer-events:none;}
 </style>
 </head>
 <body>
+  <div id="voyary-splash">
+  <img id="vs-notebook"
+      src="assets/voyary-icon.png">
+  <div id="vs-globe-wrap">
+  <img id="vs-globe"
+      src="assets/voyary-globe.png">
+  <img id="vs-plane"
+      src="assets/plane.png">
+  </div>
+  <img id="vs-logo"
+      src="assets/voyary-logo.png"> 
+  </div>
 <div class="app-wrap">
 <div class="header-sticky">
 <div class="header">
@@ -2294,6 +2341,10 @@ function renderAll(){
   }
   renderSyncStatus()
 })()
+  window.addEventListener("load",()=>{
+  setTimeout(()=>{
+    document.getElementById("voyary-splash")?.classList.add("hide")},6500)
+})
 </script>
 </body>
 </html>
