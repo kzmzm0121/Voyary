@@ -7,6 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Voyary">
 <meta name="theme-color" content="#141210">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4FA3FF">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="icon" href="assets/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Noto+Sans+JP:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -325,44 +329,416 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 .album-del-btn:hover{background:rgba(139,69,69,0.08)}
 
 @media(max-width:400px){.tab{padding:11px 9px;font-size:11px}.photo-grid{grid-template-columns:repeat(2,1fr)}}
- #voyary-splash{position:fixed;inset:0;background:#fff;z-index:999999;overflow:hidden;}
- #vs-notebook{position:absolute;width:220px;left:50%;top:50%;transform:
-   translate(-50%,-50%)
-   scale(.8);opacity:0;
-  animation:notebookIn 1s forwards,notebookOut .8s 1.5s forwards;}
- #vs-globe-wrap{position:absolute;inset:0;opacity:0;animation:globeIn .8s 2s forwards;}
- #vs-globe{position:absolute;width:420px;left:50%;top:50%;transform:translate(-50%,-50%);}
- #vs-plane{position:absolute;width:90px;left:50%;top:50%;transform-origin:center center;animation:orbit 3s 2.5s linear forwards;}
- #vs-logo{position:absolute;width:min(70vw,700px);left:50%;top:15%;transform:
-   translateX(-50%)
-   scale(.8);
-  opacity:0;animation:logoIn 1s 4.7s forwards;}
- @keyframes notebookIn{from{opacity:0;transform:translate(-50%,-50%)scale(.7);}to{opacity:1;transform:
-      translate(-50%,-50%)
-      scale(1);}}
- @keyframes notebookOut{to{opacity:0;transform:
-      translate(-50%,-50%)
-      scale(1.3);}}
- @keyframes globeIn{to{opacity:1;}}
- @keyframes orbit{0%{transform:
-      translate(-50%,-50%)
-      rotate(0deg)
-      translateX(260px)
-      rotate(20deg);} 
- 100%{transform:translate(-50%,-50%)
-      rotate(360deg)
-      translateX(260px)
-      rotate(380deg);}}
- @keyframes logoIn{from{opacity:0;transform:
-      translateX(-50%)
-      scale(.8);}
- to{opacity:1;transform:
-      translateX(-50%)
-      scale(1);}}
- #voyary-splash.hide{opacity:0;transition:.8s;pointer-events:none;}
+/* =====================================================
+   Voyary Splash Animation
+===================================================== */
+
+#splash{
+    position:fixed;
+    inset:0;
+    z-index:99999;
+
+    background:#ffffff;
+
+    overflow:hidden;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    transition:opacity .8s ease;
+}
+
+#splash.hide{
+    opacity:0;
+    pointer-events:none;
+}
+
+
+/* =====================================================
+   Earth
+===================================================== */
+
+#earth{
+
+    position:absolute;
+
+    width:min(88vw,88vh);
+
+    animation:
+        earthZoom 3.6s ease forwards;
+
+}
+
+@keyframes earthZoom{
+
+    0%{
+
+        transform:scale(1);
+
+    }
+
+    100%{
+
+        transform:scale(1.05);
+
+    }
+
+}
+
+
+/* =====================================================
+   Plane
+===================================================== */
+
+#plane{
+
+    position:absolute;
+
+    width:min(18vw,150px);
+
+    left:-220px;
+
+    top:52%;
+
+    transform:translateY(-50%);
+
+    animation:
+
+        planeFly 1.8s ease-in-out forwards;
+
+    animation-delay:.4s;
+
+}
+
+@keyframes planeFly{
+
+    0%{
+
+        left:-220px;
+
+    }
+
+    100%{
+
+        left:115%;
+
+    }
+
+}
+
+
+/* =====================================================
+   Smoke Trail
+===================================================== */
+
+#trail{
+
+    position:absolute;
+
+    width:100%;
+
+    height:100%;
+
+    overflow:visible;
+
+    pointer-events:none;
+
+}
+
+#trailPath{
+
+    stroke:#ffffff;
+
+    stroke-width:28;
+
+    stroke-linecap:round;
+
+    stroke-linejoin:round;
+
+    fill:none;
+
+    stroke-dasharray:1800;
+
+    stroke-dashoffset:1800;
+
+    opacity:0;
+
+    animation:
+
+        trailDraw 1.6s linear forwards;
+
+    animation-delay:.8s;
+
+}
+
+@keyframes trailDraw{
+
+    0%{
+
+        opacity:1;
+
+        stroke-dashoffset:1800;
+
+    }
+
+    100%{
+
+        opacity:1;
+
+        stroke-dashoffset:0;
+
+    }
+
+}
+
+
+/* =====================================================
+   Voyary Smoke Text
+===================================================== */
+
+#voyaryText{
+
+    position:absolute;
+
+    width:min(72vw,760px);
+
+    opacity:0;
+
+}
+
+#voyaryPath{
+
+    fill:none;
+
+    stroke:#ffffff;
+
+    stroke-width:18;
+
+    stroke-linecap:round;
+
+    stroke-linejoin:round;
+
+    stroke-dasharray:2200;
+
+    stroke-dashoffset:2200;
+
+    filter:blur(1px);
+
+    animation:
+
+        logoSmoke 1.4s linear forwards;
+
+    animation-delay:1.9s;
+
+}
+
+@keyframes logoSmoke{
+
+    0%{
+
+        opacity:1;
+
+        stroke-dashoffset:2200;
+
+    }
+
+    100%{
+
+        opacity:1;
+
+        stroke-dashoffset:0;
+
+    }
+
+}
+
+#voyaryText{
+
+    animation:
+
+        textFade .6s ease forwards;
+
+    animation-delay:1.9s;
+
+}
+
+@keyframes textFade{
+
+    to{
+
+        opacity:1;
+
+    }
+
+}
+
+
+/* =====================================================
+   Logo PNG
+===================================================== */
+
+#logo{
+
+    position:absolute;
+
+    width:min(38vw,360px);
+
+    opacity:0;
+
+    animation:
+
+        logoAppear .8s ease forwards;
+
+    animation-delay:3.0s;
+
+}
+
+@keyframes logoAppear{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(10px) scale(.95);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0) scale(1);
+
+    }
+
+}
+
+
+/* =====================================================
+   Mobile
+===================================================== */
+
+@media (max-width:768px){
+
+    #earth{
+
+        width:118vw;
+
+    }
+
+    #plane{
+
+        width:92px;
+
+    }
+
+    #voyaryText{
+
+        width:90vw;
+
+    }
+
+    #logo{
+
+        width:56vw;
+
+    }
+
+}
 </style>
 </head>
 <body>
+  <!-- ================= Splash ================= -->
+
+<div id="splash">
+
+    <img
+        id="earth"
+        src="assets/voyary-earth.png"
+        alt="Earth">
+
+    <img
+        id="plane"
+        src="assets/plane.png"
+        alt="Plane">
+
+    <!-- 飛行機雲 -->
+    <svg
+        id="trail"
+        viewBox="0 0 1200 500"
+        preserveAspectRatio="none">
+
+        <path
+            id="trailPath"
+            d="M40 260
+               C140 170,
+               260 340,
+               390 240
+
+               C500 150,
+               650 120,
+               760 250
+
+               C860 360,
+               1010 150,
+               1160 230"
+
+            fill="none"
+            stroke="white"
+            stroke-width="30"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+
+    </svg>
+
+    <!-- 飛行機雲文字 -->
+
+    <svg
+        id="voyaryText"
+        viewBox="0 0 1100 320">
+
+        <path
+            id="voyaryPath"
+
+            d="M70 210
+
+            C95 40 155 40 190 190
+
+            C220 310 275 210 330 120
+
+            C390 20 460 30 490 160
+
+            C520 280 600 270 635 120
+
+            C665 0 750 40 760 180
+
+            C770 310 845 270 900 160
+
+            C960 50 1015 60 1035 160"
+
+            fill="none"
+
+            stroke="white"
+
+            stroke-width="22"
+
+            stroke-linecap="round"
+
+            stroke-linejoin="round"/>
+
+    </svg>
+
+    <!-- ロゴ -->
+
+    <img
+        id="logo"
+        src="assets/voyary-logo.png"
+        alt="Voyary">
+
+</div>
+
+<!-- ================= Splash End ================= -->
   <div id="voyary-splash">
   <img id="vs-notebook"
       src="assets/voyary-icon.png">
@@ -2345,6 +2721,12 @@ function renderAll(){
   setTimeout(()=>{
     document.getElementById("voyary-splash")?.classList.add("hide")},6500)
 })
+<script>
+if ("serviceWorker" in navigator) {
+window.addEventListener("load", ()=>{
+navigator.serviceWorker.register("./service-worker.js");
+});
+}
 </script>
 </body>
 </html>
