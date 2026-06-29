@@ -329,412 +329,105 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 .album-del-btn:hover{background:rgba(139,69,69,0.08)}
 
 @media(max-width:400px){.tab{padding:11px 9px;font-size:11px}.photo-grid{grid-template-columns:repeat(2,1fr)}}
-/* =====================================================
-   Voyary Splash Animation
-===================================================== */
 
-#splash{
-    position:fixed;
+/* ===========================
+   Voyary Splash
+=========================== */
+
+#earthScene{
+    position:absolute;
     inset:0;
-    z-index:99999;
-
-    background:#ffffff;
-
     overflow:hidden;
-
     display:flex;
     justify-content:center;
     align-items:center;
-
-    transition:opacity .8s ease;
 }
 
-#splash.hide{
+#earthImage,
+#finalScene{
+    position:absolute;
+    width:125vw;
+    max-width:none;
+    transition:opacity 1s ease, transform 2.5s ease;
+}
+
+#earthImage{
+    opacity:1;
+    transform:scale(1);
+}
+
+#finalScene{
     opacity:0;
-    pointer-events:none;
+    transform:scale(1.08);
 }
 
-
-/* =====================================================
-   Earth
-===================================================== */
-
-#earth{
-
+#planeImage{
     position:absolute;
-
-    width:min(88vw,88vh);
-
-    animation:
-        earthZoom 3.6s ease forwards;
-
-}
-
-@keyframes earthZoom{
-
-    0%{
-
-        transform:scale(1);
-
-    }
-
-    100%{
-
-        transform:scale(1.05);
-
-    }
-
-}
-
-
-/* =====================================================
-   Plane
-===================================================== */
-
-#plane{
-
-    position:absolute;
-
-    width:min(18vw,150px);
-
     left:-220px;
-
-    top:52%;
-
-    transform:translateY(-50%);
-
-    animation:
-
-        planeFly 1.8s ease-in-out forwards;
-
-    animation-delay:.4s;
-
-}
-
-@keyframes planeFly{
-
-    0%{
-
-        left:-220px;
-
-    }
-
-    100%{
-
-        left:115%;
-
-    }
-
-}
-
-
-/* =====================================================
-   Smoke Trail
-===================================================== */
-
-#trail{
-
-    position:absolute;
-
-    width:100%;
-
-    height:100%;
-
-    overflow:visible;
-
-    pointer-events:none;
-
-}
-
-#trailPath{
-
-    stroke:#ffffff;
-
-    stroke-width:28;
-
-    stroke-linecap:round;
-
-    stroke-linejoin:round;
-
-    fill:none;
-
-    stroke-dasharray:1800;
-
-    stroke-dashoffset:1800;
-
-    opacity:0;
-
-    animation:
-
-        trailDraw 1.6s linear forwards;
-
-    animation-delay:.8s;
-
-}
-
-@keyframes trailDraw{
-
-    0%{
-
-        opacity:1;
-
-        stroke-dashoffset:1800;
-
-    }
-
-    100%{
-
-        opacity:1;
-
-        stroke-dashoffset:0;
-
-    }
-
-}
-
-
-/* =====================================================
-   Voyary Smoke Text
-===================================================== */
-
-#voyaryText{
-
-    position:absolute;
-
-    width:min(72vw,760px);
-
-    opacity:0;
-
-}
-
-#voyaryPath{
-
-    fill:none;
-
-    stroke:#ffffff;
-
-    stroke-width:18;
-
-    stroke-linecap:round;
-
-    stroke-linejoin:round;
-
-    stroke-dasharray:2200;
-
-    stroke-dashoffset:2200;
-
-    filter:blur(1px);
-
-    animation:
-
-        logoSmoke 1.4s linear forwards;
-
-    animation-delay:1.9s;
-
-}
-
-@keyframes logoSmoke{
-
-    0%{
-
-        opacity:1;
-
-        stroke-dashoffset:2200;
-
-    }
-
-    100%{
-
-        opacity:1;
-
-        stroke-dashoffset:0;
-
-    }
-
-}
-
-#voyaryText{
-
-    animation:
-
-        textFade .6s ease forwards;
-
-    animation-delay:1.9s;
-
-}
-
-@keyframes textFade{
-
-    to{
-
-        opacity:1;
-
-    }
-
-}
-
-
-/* =====================================================
-   Logo PNG
-===================================================== */
-
-#logo{
-
-    position:absolute;
-
-    width:min(38vw,360px);
-
-    opacity:0;
-
-    animation:
-
-        logoAppear .8s ease forwards;
-
-    animation-delay:3.0s;
-
-}
-
-@keyframes logoAppear{
-
-    from{
-
-        opacity:0;
-
-        transform:translateY(10px) scale(.95);
-
-    }
-
-    to{
-
-        opacity:1;
-
-        transform:translateY(0) scale(1);
-
-    }
-
-}
-
-
-/* =====================================================
-   Mobile
-===================================================== */
-
-@media (max-width:768px){
-
-    #earth{
-
-        width:118vw;
-
-    }
-
-    #plane{
-
-        width:92px;
-
-    }
-
-    #voyaryText{
-
-        width:90vw;
-
-    }
-
-    #logo{
-
-        width:56vw;
-
-    }
-
+    top:62%;
+    width:140px;
+    z-index:20;
+    transform:translateY(-50%) scale(1) rotate(-8deg);
+    transform-origin:center center;
+    will-change:transform,left,top;
 }
 </style>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 </head>
 <body>
   <!-- ================= Splash ================= -->
 
-<div id="splash">
+<body>
 
-    <img
-        id="earth"
-        src="assets/voyary-earth.png"
-        alt="Earth">
+<div id="voyarySplash">
 
-    <img
-        id="plane"
-        src="assets/plane.png"
-        alt="Plane">
+    <div id="splashNotebook">
 
-    <!-- 飛行機雲 -->
-    <svg
-        id="trail"
-        viewBox="0 0 1200 500"
-        preserveAspectRatio="none">
+        <img src="assets/voyary-icon.png" alt="Voyary">
 
-        <path
-            id="trailPath"
-            d="M40 260
-               C140 170,
-               260 340,
-               390 240
+    </div>
 
-               C500 150,
-               650 120,
-               760 250
+    <div id="splashEarth">
 
-               C860 360,
-               1010 150,
-               1160 230"
+        <div id="earthScene">
 
-            fill="none"
-            stroke="white"
-            stroke-width="30"
-            stroke-linecap="round"
-            stroke-linejoin="round"/>
+    <img id="earthImage"
+         src="assets/voyary-earth.png">
 
-    </svg>
+    <img id="finalScene"
+         src="assets/voyary-globe.png">
 
-    <!-- 飛行機雲文字 -->
+    <img id="planeImage"
+         src="assets/plane.png">
 
-    <svg
-        id="voyaryText"
-        viewBox="0 0 1100 320">
+</div>
+             alt="Earth">
 
-        <path
-            id="voyaryPath"
+        <img id="planeImage"
+             src="assets/plane.png"
+             alt="Plane">
 
-            d="M70 210
+        <svg id="trailSVG"
+             viewBox="0 0 900 220"
+             preserveAspectRatio="none">
 
-            C95 40 155 40 190 190
+            <path
+                id="trailPath"
+                d="M120 120
+                   C190 120 210 95 250 95
+                   C320 95 330 150 380 150
+                   C440 150 455 70 520 70
+                   C600 70 620 150 710 150
+                   C760 150 790 110 845 110"
+            />
 
-            C220 310 275 210 330 120
+        </svg>
 
-            C390 20 460 30 490 160
+        <img id="voyaryLogo"
+             src="assets/voyary-logo.png"
+             alt="Voyary">
 
-            C520 280 600 270 635 120
-
-            C665 0 750 40 760 180
-
-            C770 310 845 270 900 160
-
-            C960 50 1015 60 1035 160"
-
-            fill="none"
-
-            stroke="white"
-
-            stroke-width="22"
-
-            stroke-linecap="round"
-
-            stroke-linejoin="round"/>
-
-    </svg>
-
-    <!-- ロゴ -->
-
-    <img
-        id="logo"
-        src="assets/voyary-logo.png"
-        alt="Voyary">
+    </div>
 
 </div>
 
@@ -2722,11 +2415,94 @@ function renderAll(){
     document.getElementById("voyary-splash")?.classList.add("hide")},6500)
 })
 <script>
-if ("serviceWorker" in navigator) {
-window.addEventListener("load", ()=>{
-navigator.serviceWorker.register("./service-worker.js");
+
+window.addEventListener("load",()=>{
+
+const splash=document.getElementById("voyarySplash");
+const notebook=document.getElementById("splashNotebook");
+const earth=document.getElementById("splashEarth");
+const earthImage=document.getElementById("earthImage");
+const finalScene=document.getElementById("finalScene");
+const plane=document.getElementById("planeImage");
+
+if(!splash)return;
+
+const tl=gsap.timeline();
+
+tl
+
+// ノート表示
+.to({},{
+duration:1
+})
+
+// ノート消える
+.to(notebook,{
+opacity:0,
+duration:.8
+})
+
+// 地球表示
+.to(earth,{
+opacity:1,
+duration:.8
+},"-=0.2")
+
+// 飛行機初期位置
+.set(plane,{
+opacity:1,
+x:-350,
+y:120,
+scale:1,
+rotation:-10
+})
+
+// 飛行機がこちらへ
+.to(plane,{
+x:window.innerWidth*0.55,
+y:-30,
+scale:9,
+rotation:6,
+duration:1.8,
+ease:"power3.in"
+},"-=0.2")
+
+// 地球ズーム
+.to(earthImage,{
+scale:1.08,
+duration:2
+},"<")
+
+// 完成画像
+.to(earthImage,{
+opacity:0,
+duration:.6
+},"-=0.3")
+
+.to(finalScene,{
+opacity:1,
+duration:.6
+},"<")
+
+// 少し見せる
+.to({},{
+duration:.8
+})
+
+// 消える
+.to(splash,{
+opacity:0,
+duration:.8
+})
+
+.add(()=>{
+
+splash.remove();
+
 });
-}
+
+});
+
 </script>
 </body>
 </html>
