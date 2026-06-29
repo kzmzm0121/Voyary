@@ -7,8 +7,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Voyary">
 <meta name="theme-color" content="#141210">
+<link rel="icon" href="assets/favicon.ico">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#4FA3FF">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
 <link rel="icon" href="assets/favicon.ico">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2477,6 +2479,15 @@ function renderAll(){
 
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('service-worker.js');
+}
+
+  <script>
+
+if ("serviceWorker" in navigator) {
+window.addEventListener("load", ()=>{
+navigator.serviceWorker.register("./service-worker.js");
+});
+
 }
 
 </script>
