@@ -1,0 +1,17 @@
+{
+  "name": "voyary",
+  "version": "1.0.0",
+  "description": "",
+  "main": "service-worker.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "png-to-ico": "^3.0.1",
+    "sharp": "^0.35.2"
+  }
+}
