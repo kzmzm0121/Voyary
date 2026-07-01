@@ -2419,105 +2419,6 @@ tl.to(earth,{
 tl.fromTo(
     earthImage,
     {
-        scale:1
-    },
-    {
-        scale:1.08,
-        duration:3,
-        ease:"power1.out"
-    },
-    "<"
-);
-
-// 飛行機登場
-tl.set(plane,{
-    opacity:1
-});
-
-// 左下から進入
-tl.to(plane,{
-    x:920,
-    y:-340,
-    scale:16,
-    rotation:15,
-    filter:"blur(2px)",
-    duration:.42,
-    ease:"power4.in"
-
-},"<");
-  
-  opacity:0,
-    clearProps:"filter"
-
-});
-  
-// 地球手前へ
-tl.to(plane,{
-    x:80,
-    y:40,
-    scale:1.4,
-    rotation:-10,
-    duration:.5
-});
-
-// 地球中央へ
-tl.to(plane,{
-    x:260,
-    y:-20,
-    scale:2.4,
-    rotation:-4,
-    duration:.45
-});
-  const tl = gsap.timeline({
-    defaults:{
-        ease:"power2.inOut"
-    }
-});
-
-// ------------------------
-// Notebook
-// ------------------------
-
-tl.set(earth,{
-    opacity:0
-});
-
-tl.set(finalScene,{
-    opacity:0,
-    scale:1.08
-});
-
-tl.set(plane,{
-    opacity:0,
-    x:-500,
-    y:180,
-    scale:.45,
-    rotation:-18,
-    transformOrigin:"50% 50%"
-});
-
-// Notebook表示
-tl.to({},{
-    duration:1.0
-});
-
-// Notebook閉じる
-tl.to(notebook,{
-    opacity:0,
-    scale:.94,
-    duration:.7
-});
-
-// Earth表示
-tl.to(earth,{
-    opacity:1,
-    duration:1.1
-},"-=0.2");
-
-// 地球を少しズーム
-tl.fromTo(
-    earthImage,
-    {
         scale:1.03
     },
     {
@@ -2573,12 +2474,14 @@ tl.to(plane,{
 });
 
 tl.to(plane,{
-    x:900,
-    y:-320,
-    scale:14,
-    rotation:12,
-    duration:.45,
+    x:920,
+    y:-340,
+    scale:16,
+    rotation:15,
+    filter:"blur(2px)",
+    duration:.42,
     ease:"power4.in"
+
 },"<");
 
 // ============================
@@ -2587,6 +2490,7 @@ tl.to(plane,{
 
 tl.set(plane,{
     opacity:0
+    clearProps:"filter"
 });
 
 // 地球を少しだけさらにズーム
@@ -2610,7 +2514,7 @@ tl.to(finalScene,{
 
 // 完成画像を少し見せる
 tl.to({},{
-    duration:.8
+    duration:1.1
 });
 
 // Splash終了
