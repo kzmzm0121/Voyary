@@ -39,6 +39,30 @@
 body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-height:100vh;-webkit-text-size-adjust:100%;font-weight:500;letter-spacing:0.01em;background-image:linear-gradient(var(--gd),#EDE8DF 0%,#F5F0E8 45%,#FDFBF7 100%);background-attachment:fixed}
 .app-wrap{max-width:680px;margin:0 auto;padding:0 0 100px}
 .header-sticky{position:sticky;top:0;z-index:20}
+ 
+  #voyarySplash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #141210;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#splashNotebook {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#splashNotebook img {
+  width: 160px;
+}
+#splashEarth {
+  position: absolute;
+  inset: 0;
+}
 
 /* HEADER */
 .header{position:relative;background:var(--grad-box);padding:18px 20px 16px;box-shadow:0 1px 0 rgba(201,169,98,0.35),0 12px 40px rgba(26,23,20,0.35);overflow:hidden}
@@ -407,10 +431,39 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
     <img id="planeImage"
          src="assets/plane.png">
 
-</div>
+</div>  <!-- earthScene を閉じる -->
+  </div>  <!-- splashEarth を閉じる -->
+</div>    <!-- voyarySplash を閉じる -->
 
+<!-- ===== OVERVIEW ===== -->
+    
 <!-- ================= Splash End ================= -->
+</div>    <!-- voyarySplash を閉じる -->
 
+<div class="app-wrap">
+<div class="header-sticky">
+<div class="header">
+  <div class="brand-mark" style="margin-bottom:8px">Voyary</div>
+  <div class="header-top">
+    <h1 id="trip-title">新しい旅行</h1>
+    <span class="trip-badge" id="trip-status-badge" onclick="onBadgeClick()">計画中</span>
+  </div>
+  <div class="header-sub" id="trip-dates"></div>
+  <div class="save-indicator" id="save-indicator"><span class="dot"></span><span id="save-indicator-text">保存済み</span></div>
+</div>
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('overview')">概要</button>
+  <button class="tab" onclick="switchTab('transport')">交通機関</button>
+  <button class="tab" onclick="switchTab('hotel')">宿泊</button>
+  <button class="tab" onclick="switchTab('itinerary')">旅程</button>
+  <button class="tab" onclick="switchTab('checklist')">持ち物</button>
+  <button class="tab" onclick="switchTab('budget')">予算</button>
+  <button class="tab" onclick="switchTab('photos')">写真・動画</button>
+  <button class="tab" onclick="switchTab('emergency')">緊急</button>
+  <button class="tab" onclick="switchTab('share')">共有</button>
+  <button class="tab" onclick="switchTab('albums')">思い出</button>
+</div>
+</div>
 <!-- ===== OVERVIEW ===== -->
 <div id="sec-overview" class="section active">
   <div class="stats-grid">
