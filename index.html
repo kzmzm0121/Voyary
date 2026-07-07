@@ -56,8 +56,10 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
   align-items: center;
   justify-content: center;
 }
-#splashNotebook img {
-  width: 160px;
+#splashNotebook img{
+  width:min(72vw,460px);
+  height:auto;
+  display:block;
 }
 #splashEarth {
   position: absolute;
@@ -369,24 +371,25 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 
 #earthImage,
 #finalScene{
-
-    position:absolute;
-
-    width:135vw;
-    max-width:none;
-
-    left:50%;
-    top:50%;
-
-    transform:translate(-50%,-50%) scale(1);
-
-    transform-origin:center center;
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:120vmax;
+  height:auto;
+  transform:translate(-50%,-50%);
+  transform-origin:center center;
+  opacity:0;
 
 }
-
 #earthImage{
-    opacity:1;
-    transform:scale(1);
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:120vmax;
+  height:auto;
+  transform:translate(-50%,-50%);
+  transform-origin:center center;
+
 }
 
 #finalScene{
