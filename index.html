@@ -2407,176 +2407,162 @@ function renderAll(){
   
 <script>
   
-window.addEventListener("load",()=>{
+window.addEventListener("load", () => {
 
-const splash=document.getElementById("voyarySplash");
-const notebook=document.getElementById("splashNotebook");
-const earth=document.getElementById("splashEarth");
-const earthImage=document.getElementById("earthImage");
-const finalScene=document.getElementById("finalScene");
-const plane=document.getElementById("planeImage");
+    const splash = document.getElementById("voyarySplash");
+    const notebook = document.getElementById("splashNotebook");
+    const earth = document.getElementById("splashEarth");
+    const earthImage = document.getElementById("earthImage");
+    const finalScene = document.getElementById("finalScene");
+    const plane = document.getElementById("planeImage");
 
-if(!splash)return;
+    if (!splash) return;
 
-const tl = gsap.timeline({
-    defaults:{
-        ease:"power2.inOut"
-    }
-});
+    const tl = gsap.timeline({
+        defaults: {
+            ease: "power2.inOut"
+        }
+    });
 
-// ------------------------
-// Notebook
-// ------------------------
+    // 初期状態
+    tl.set(earth, {
+        opacity: 0
+    });
 
-tl.set(earth,{
-    opacity:0
-});
+    tl.set(finalScene, {
+        opacity: 0,
+        scale: 1.08
+    });
 
-tl.set(finalScene,{
-    opacity:0,
-    scale:1.08
-});
+    tl.set(plane, {
+        opacity: 0,
+        x: -500,
+        y: 180,
+        scale: 0.45,
+        rotation: -18,
+        transformOrigin: "50% 50%"
+    });
 
-tl.set(plane,{
-    opacity:0,
-    x:-500,
-    y:180,
-    scale:.45,
-    rotation:-18,
-    transformOrigin:"50% 50%"
-});
+    // Notebook表示
+    tl.to({}, {
+        duration: 1.0
+    });
 
-// Notebook表示
-tl.to({},{
-    duration:1.0
-});
+    // Notebook閉じる
+    tl.to(notebook, {
+        opacity: 0,
+        scale: 0.94,
+        duration: 0.7
+    });
 
-// Notebook閉じる
-tl.to(notebook,{
-    opacity:0,
-    scale:.94,
-    duration:.7
-});
+    // 地球表示
+    tl.to(earth, {
+        opacity: 1,
+        duration: 0.8
+    }, "-=0.2");
 
-// Earth表示
-tl.to(earth,{
-    opacity:1,
-    duration:.8
-},"-=0.2");
+    // 地球ズーム
+    tl.fromTo(
+        earthImage,
+        {
+            scale: 1.03
+        },
+        {
+            scale: 1.08,
+            duration: 3,
+            ease: "power1.out"
+        },
+        "<"
+    );
 
-// 地球を少しズーム
-tl.fromTo(
-    earthImage,
-    {
-        scale:1.03
-    },
-    {
-        scale:1.08,
-        duration:3,
-        ease:"power1.out"
-    },
-    "<"
-);
+    // 飛行機登場
+    tl.set(plane, {
+        opacity: 1
+    });
 
-// 飛行機登場
-tl.set(plane,{
-    opacity:1
-});
+    tl.to(plane, {
+        x: -120,
+        y: 120,
+        scale: 0.8,
+        rotation: -15,
+        duration: 0.45
+    });
 
-// 左下から進入
-tl.to(plane,{
-    x:-120,
-    y:120,
-    scale:.8,
-    rotation:-15,
-    duration:.45
-});
+    tl.to(plane, {
+        x: 80,
+        y: 40,
+        scale: 1.4,
+        rotation: -10,
+        duration: 0.5
+    });
 
-// 地球手前へ
-tl.to(plane,{
-    x:80,
-    y:40,
-    scale:1.4,
-    rotation:-10,
-    duration:.5
-});
+    tl.to(plane, {
+        x: 260,
+        y: -20,
+        scale: 2.4,
+        rotation: -4,
+        duration: 0.45
+    });
 
-// 地球中央へ
-tl.to(plane,{
-    x:260,
-    y:-20,
-    scale:2.4,
-    rotation:-4,
-    duration:.45
-});
-  // ============================
-// 一気にこちらへ飛び出す
-// ============================
+    // 一気に手前へ飛び出す
+    tl.to(plane, {
+        x: 520,
+        y: -150,
+        scale: 5,
+        rotation: 4,
+        duration: 0.35,
+        ease: "power3.in"
+    });
 
-tl.to(plane,{
-    x:520,
-    y:-150,
-    scale:5,
-    rotation:4,
-    duration:.35,
-    ease:"power3.in"
-});
+    tl.to(plane, {
+        x: 920,
+        y: -340,
+        scale: 16,
+        rotation: 15,
+        filter: "blur(2px)",
+        duration: 0.42,
+        ease: "power4.in"
+    }, "<");
 
-tl.to(plane,{
-    x:920,
-    y:-340,
-    scale:16,
-    rotation:15,
-    filter:"blur(2px)",
-    duration:.42,
-    ease:"power4.in"
+    // 飛行機非表示
+    tl.set(plane, {
+        opacity: 0,
+        clearProps: "filter"
+    });
 
-},"<");
+    // 地球をさらにズーム
+    tl.to(earthImage, {
+        scale: 1.15,
+        duration: 0.5
+    }, "<");
 
-// ============================
-// 飛行機が通過した瞬間
-// ============================
+    // クロスフェード
+    tl.to(earthImage, {
+        opacity: 0,
+        duration: 0.5
+    }, "<");
 
-// 飛行機を非表示
-tl.set(plane,{
-    opacity:0,
-    clearProps:"filter"
-});
+    tl.to(finalScene, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.7,
+        ease: "power2.out"
+    }, "<");
 
-// 地球を少しだけさらにズーム
-tl.to(earthImage,{
-    scale:1.15,
-    duration:.5
-},"<");
+    // 少し停止
+    tl.to({}, {
+        duration: 1.1
+    });
 
-// 完成画像へクロスフェード
-tl.to(earthImage,{
-    opacity:0,
-    duration:.5
-},"<");
+    // Splash終了
+    tl.to(splash, {
+        opacity: 0,
+        duration: 0.9
+    });
 
-tl.to(finalScene,{
-    opacity:1,
-    scale:1,
-    duration:.7,
-    ease:"power2.out"
-},"<");
-
-// 完成画像を少し見せる
-tl.to({},{
-    duration:1.1
-});
-
-// Splash終了
-tl.to(splash,{
-    opacity:0,
-    duration:.9
-});
-
-// DOMから削除
-tl.call(()=>{
-
-    splash.remove();
+    tl.call(() => {
+        splash.remove();
+    });
 
 });
 
