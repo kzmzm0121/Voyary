@@ -2416,7 +2416,6 @@ window.addEventListener("load", () => {
     const earthImage = document.getElementById("earthImage");
     const finalScene = document.getElementById("finalScene");
     const plane = document.getElementById("planeImage");
-　　　console.log(plane);
     if (!splash) return;
 
     const tl = gsap.timeline({
@@ -2564,6 +2563,8 @@ window.addEventListener("load", () => {
     tl.call(() => {
         splash.remove();
     });
+
+  });
   
 </script>
 </body>
