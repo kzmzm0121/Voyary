@@ -168,7 +168,9 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 }
 </style>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/MotionPathPlugin.min.js"></script>
 </head>
+ 
 <body>
   <!-- ================= Splash ================= -->
 
@@ -179,6 +181,12 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
         id="notebook"
         src="assets/voyary-icon.png"
         alt="Voyary Notebook">
+   
+    <!-- 飛行機 -->
+    <img
+        id="plane"
+        src="assets/plane.png"
+        alt="Plane">
 
     <!-- 宇宙背景 -->
     <img
@@ -192,7 +200,7 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
         src="assets/earth.webp"
         alt="Earth">
 
-    <!-- 飛行機 -->
+  c <!-- 飛行機 -->
     <img
         id="plane"
         src="assets/plane.png"
@@ -2178,163 +2186,196 @@ function renderAll(){
   
 <script>
   
-window.addEventListener("load", () => {
+window.addEventListener("load",()=>{
 
-    const splash = document.getElementById("voyarySplash");
-    const notebook = document.getElementById("splashNotebook");
-    const earth = document.getElementById("splashEarth");
-    const earthImage = document.getElementById("earthImage");
-    const finalScene = document.getElementById("finalScene");
-    const plane = document.getElementById("planeImage");
-    if (!splash) return;
+  gsap.registerPlugin(MotionPathPlugin);
 
-    const tl = gsap.timeline({
-        defaults: {
-            ease: "power2.inOut"
-        }
-    });
+const splash=document.getElementById("voyarySplash");
+const notebook=document.getElementById("notebook");
+const sky=document.getElementById("sky");
+const earth=document.getElementById("earth");
+const plane=document.getElementById("plane");
+const logo=document.getElementById("voyaryLogo");
 
-    // 初期状態
-    tl.set(earth, {
-        opacity: 0
-    });
+if(!splash)return;
 
-    tl.set(finalScene, {
-        opacity: 0,
-        scale: 1.08
-    });
+// 初期状態
+gsap.set(sky,{
+    opacity:0,
+    scale:1
+});
 
-    tl.set(plane, {
-        opacity: 0,
-        x: -500,
-        y: 180,
-        scale: 0.45,
-        rotation: -18,
-        transformOrigin: "50% 50%"
-    });
+gsap.set(earth,{
+    opacity:0,
+    scale:.92,
+    rotation:-4,
+    transformOrigin:"50% 50%"
+});
 
-    // Notebook表示
-    tl.to({}, {
-        duration: 1.0
-    });
+gsap.set(logo,{
+    opacity:0,
+    y:20
+});
 
-    // Notebook閉じる
-    tl.to(notebook, {
-        opacity: 0,
-        scale: 0.94,
-        duration: 0.7
-    });
+gsap.set(plane,{
+    opacity:0,
+    x:0,
+    y:0,
+    scale:.23,
+    rotation:-18,
+    transformOrigin:"50% 50%"
+});
 
-    // 地球表示
-    tl.to(earth, {
-        opacity: 1,
-        duration: 0.8
-    }, "-=0.2");
+const tl=gsap.timeline({
 
-    // 地球ズーム
-    tl.fromTo(
-        earthImage,
-        {
-            scale: 1.03
-        },
-        {
-            scale: 1.08,
-            duration: 3,
-            ease: "power1.out"
-        },
-        "<"
-    );
+defaults:{
+ease:"power2.inOut"
+}
 
-    // 飛行機登場
-    tl.set(plane, {
-        opacity: 1
-    });
+});
 
-    tl.to(plane, {
-        x: -120,
-        y: 120,
-        scale: 0.8,
-        rotation: -15,
-        duration: 0.45
-    });
+//--------------------------------
+// Notebook表示
+//--------------------------------
 
-    tl.to(plane, {
-        x: 80,
-        y: 40,
-        scale: 1.4,
-        rotation: -10,
-        duration: 0.5
-    });
+tl.to({},{
+duration:1.2
+});
 
-    tl.to(plane, {
-        x: 260,
-        y: -20,
-        scale: 2.4,
-        rotation: -4,
-        duration: 0.45
-    });
+//--------------------------------
+// 飛行機がノートから現れる
+//--------------------------------
 
-    // 一気に手前へ飛び出す
-    tl.to(plane, {
-        x: 520,
-        y: -150,
-        scale: 5,
-        rotation: 4,
-        duration: 0.35,
-        ease: "power3.in"
-    });
+tl.to(plane,{
+opacity:1,
+duration:.2
+});
 
-    tl.to(plane, {
-        x: 920,
-        y: -340,
-        scale: 16,
-        rotation: 15,
-        filter: "blur(2px)",
-        duration: 0.42,
-        ease: "power4.in"
-    }, "<");
+//--------------------------------
+// ノートから離陸
+//--------------------------------
 
-    // 飛行機非表示
-    tl.set(plane, {
-        opacity: 0,
-        clearProps: "filter"
-    });
+tl.to(plane,{
+x:120,
+y:-80,
+scale:.55,
+rotation:-12,
+duration:.6
+});
 
-    // 地球をさらにズーム
-    tl.to(earthImage, {
-        scale: 1.15,
-        duration: 0.5
-    }, "<");
+//--------------------------------
+// ノートを消す
+//--------------------------------
 
-    // クロスフェード
-    tl.to(earthImage, {
-        opacity: 0,
-        duration: 0.5
-    }, "<");
+tl.to(notebook,{
+opacity:0,
+scale:.94,
+duration:.5
+},"<");
 
-    tl.to(finalScene, {
-        opacity: 1,
-        scale: 1,
-        duration: 0.7,
-        ease: "power2.out"
-    }, "<");
+//--------------------------------
+// 地球表示
+//--------------------------------
 
-    // 少し停止
-    tl.to({}, {
-        duration: 1.1
-    });
+tl.to(sky,{
+opacity:1,
+duration:.7
+},"-=0.2");
 
-    // Splash終了
-    tl.to(splash, {
-        opacity: 0,
-        duration: 0.9
-    });
+tl.to(earth,{
+opacity:1,
+duration:.7
+},"<");
 
-    tl.call(() => {
-        splash.remove();
-    });
+//--------------------------------
+// 地球ズーム＋自転
+//--------------------------------
 
-  });
+tl.to(earth,{
+scale:1.05,
+rotation:3,
+duration:5,
+ease:"none"
+},"<");
+
+//--------------------------------
+// 地球を回る
+//--------------------------------
+
+tl.to(plane,{
+motionPath:{
+path:[
+{x:170,y:-150},
+{x:320,y:-40},
+{x:250,y:130},
+{x:40,y:100},
+{x:-140,y:-40},
+{x:-30,y:-180}
+],
+curviness:1.5,
+autoRotate:true
+},
+scale:.9,
+duration:2.8,
+ease:"power1.inOut"
+});
+
+//--------------------------------
+// こちらへ飛び出す
+//--------------------------------
+
+tl.to(plane,{
+x:900,
+y:-450,
+scale:14,
+rotation:18,
+filter:"blur(4px)",
+duration:.6,
+ease:"power4.in"
+});
+
+//--------------------------------
+// 飛行機消える
+//--------------------------------
+
+tl.set(plane,{
+opacity:0
+});
+
+//--------------------------------
+// Voyary表示
+//--------------------------------
+
+tl.to(logo,{
+opacity:1,
+y:0,
+duration:.8
+});
+
+//--------------------------------
+// 少し見せる
+//--------------------------------
+
+tl.to({},{
+duration:1.5
+});
+
+//--------------------------------
+// Splash終了
+//--------------------------------
+
+tl.to(splash,{
+opacity:0,
+duration:1.2
+});
+
+tl.call(()=>{
+
+splash.remove();
+
+});
+
+});
   
 </script>
 </body>
