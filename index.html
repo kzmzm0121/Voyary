@@ -2186,12 +2186,12 @@ function renderAll(){
   
 <script>
   
+gsap.registerPlugin(MotionPathPlugin);
+
 window.addEventListener("load",()=>{
 
-  gsap.registerPlugin(MotionPathPlugin);
-
 const splash=document.getElementById("voyarySplash");
-const notebook=document.getElementById("notebook");
+
 const sky=document.getElementById("sky");
 const earth=document.getElementById("earth");
 const plane=document.getElementById("plane");
@@ -2199,7 +2199,11 @@ const logo=document.getElementById("voyaryLogo");
 
 if(!splash)return;
 
+
+//-------------------------
 // 初期状態
+//-------------------------
+
 gsap.set(sky,{
     opacity:0,
     scale:1
@@ -2212,19 +2216,22 @@ gsap.set(earth,{
     transformOrigin:"50% 50%"
 });
 
-gsap.set(logo,{
-    opacity:0,
-    y:20
-});
-
 gsap.set(plane,{
     opacity:0,
     x:0,
     y:0,
-    scale:.23,
-    rotation:-18,
+    scale:.04,
+    rotation:-20,
+    filter:"blur(0px)",
     transformOrigin:"50% 50%"
 });
+
+gsap.set(logo,{
+    opacity:0,
+    scale:.92,
+    y:30
+});
+
 
 const tl=gsap.timeline({
 
@@ -2234,140 +2241,219 @@ ease:"power2.inOut"
 
 });
 
-//--------------------------------
-// Notebook表示
-//--------------------------------
 
-tl.to({},{
-duration:1.2
-});
-
-//--------------------------------
-// 飛行機がノートから現れる
-//--------------------------------
-
-tl.to(plane,{
-opacity:1,
-duration:.2
-});
-
-//--------------------------------
-// ノートから離陸
-//--------------------------------
-
-tl.to(plane,{
-x:120,
-y:-80,
-scale:.55,
-rotation:-12,
-duration:.6
-});
-
-//--------------------------------
-// ノートを消す
-//--------------------------------
-
-tl.to(notebook,{
-opacity:0,
-scale:.94,
-duration:.5
-},"<");
-
-//--------------------------------
-// 地球表示
-//--------------------------------
+//==============================
+// 宇宙フェードイン
+//==============================
 
 tl.to(sky,{
 opacity:1,
-duration:.7
-},"-=0.2");
+duration:1
+});
+
+
+//==============================
+// 地球フェードイン
+//==============================
 
 tl.to(earth,{
 opacity:1,
-duration:.7
-},"<");
+duration:.9
+},"-=0.4");
 
-//--------------------------------
-// 地球ズーム＋自転
-//--------------------------------
+
+//==============================
+// 地球ゆっくり自転
+//==============================
 
 tl.to(earth,{
+rotation:2,
 scale:1.05,
-rotation:3,
-duration:5,
+duration:8,
 ease:"none"
 },"<");
 
-//--------------------------------
-// 地球を回る
-//--------------------------------
 
-tl.to(plane,{
-motionPath:{
-path:[
-{x:170,y:-150},
-{x:320,y:-40},
-{x:250,y:130},
-{x:40,y:100},
-{x:-140,y:-40},
-{x:-30,y:-180}
-],
-curviness:1.5,
-autoRotate:true
-},
-scale:.9,
-duration:2.8,
-ease:"power1.inOut"
+//==============================
+// 地球の裏から飛行機
+//==============================
+
+tl.set(plane,{
+opacity:1,
+x:-250,
+y:180,
+scale:.05,
+rotation:-12
 });
 
-//--------------------------------
-// こちらへ飛び出す
-//--------------------------------
+
+//==============================
+// 地球の縁へ
+//==============================
 
 tl.to(plane,{
+
+x:-120,
+y:90,
+
+scale:.18,
+
+rotation:-10,
+
+duration:.8,
+
+ease:"power1.out"
+
+});
+
+
+//==============================
+// 地球前面へ
+//==============================
+
+tl.to(plane,{
+
+x:70,
+y:-10,
+
+scale:.55,
+
+rotation:-7,
+
+duration:.7
+
+});
+
+
+//==============================
+// 手前へ急加速
+//==============================
+
+tl.to(plane,{
+
+x:420,
+y:-180,
+
+scale:7,
+
+rotation:4,
+
+filter:"blur(2px)",
+
+duration:.45,
+
+ease:"power3.in"
+
+});
+
+
+//==============================
+// 画面いっぱい
+//==============================
+
+tl.to(plane,{
+
 x:900,
-y:-450,
-scale:14,
-rotation:18,
-filter:"blur(4px)",
-duration:.6,
+y:-420,
+
+scale:20,
+
+rotation:12,
+
+filter:"blur(8px)",
+
+duration:.35,
+
 ease:"power4.in"
+
+},"<");
+
+
+//==============================
+// 一瞬白フラッシュ
+//==============================
+
+tl.to(splash,{
+
+background:"#ffffff",
+
+duration:.08
+
 });
 
-//--------------------------------
+tl.to(splash,{
+
+background:"#05070d",
+
+duration:.18
+
+});
+
+
+//==============================
 // 飛行機消える
-//--------------------------------
+//==============================
 
 tl.set(plane,{
 opacity:0
 });
 
-//--------------------------------
+
+//==============================
+// 地球を少しだけズーム
+//==============================
+
+tl.to(earth,{
+
+scale:1.09,
+
+duration:.6
+
+},"<");
+
+
+//==============================
 // Voyary表示
-//--------------------------------
+//==============================
 
 tl.to(logo,{
+
 opacity:1,
+
+scale:1,
+
 y:0,
-duration:.8
+
+duration:1.0,
+
+ease:"power2.out"
+
 });
 
-//--------------------------------
+
+//==============================
 // 少し見せる
-//--------------------------------
+//==============================
 
 tl.to({},{
-duration:1.5
+
+duration:1.8
+
 });
 
-//--------------------------------
-// Splash終了
-//--------------------------------
+
+//==============================
+// ホームへ
+//==============================
 
 tl.to(splash,{
+
 opacity:0,
+
 duration:1.2
+
 });
+
 
 tl.call(()=>{
 
