@@ -114,7 +114,8 @@ width:110vmin;
 transform:translate(-50%,-50%);
 
 opacity:0;
-
+visibility:hidden;
+  
 pointer-events:none;
 
 z-index:25;
@@ -173,11 +174,13 @@ position:absolute;
 
 inset:0;
 
-background:white;
+background:#fff;
 
 opacity:0;
 
 pointer-events:none;
+
+z-index:999;
 
 }
   
@@ -2259,10 +2262,15 @@ opacity:1,
 duration:1
 });
 
+  
 //==============================
 // 地球フェードイン
 //==============================
 
+tl.set(atmosphere,{
+    visibility:"visible"
+});
+  
 tl.to(earth,{
 opacity:1,
 duration:.9
