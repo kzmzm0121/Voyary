@@ -97,7 +97,29 @@ transform:translate(-50%,-50%);
 opacity:0;
 
 }
+  
+/*=========================
+ Atmosphere
+=========================*/
 
+#atmosphere{
+
+position:absolute;
+
+left:50%;
+top:50%;
+
+width:110vmin;
+
+transform:translate(-50%,-50%);
+
+opacity:0;
+
+pointer-events:none;
+
+z-index:25;
+
+}
 
 /*=========================
  Plane
@@ -176,7 +198,11 @@ pointer-events:none;
     <img id="earth"
          src="assets/earth.webp"
          alt="Earth">
-
+  
+    <img id="atmosphere"
+         src="assets/earth-atmosphere.webp"
+         alt="Atmosphere">
+  
     <img id="plane"
          src="assets/plane.png"
          alt="Plane">
@@ -2169,6 +2195,7 @@ const splash=document.getElementById("voyarySplash");
 
 const sky=document.getElementById("sky");
 const earth=document.getElementById("earth");
+const atmosphere=document.getElementById("atmosphere");
 const plane=document.getElementById("plane");
 const logo=document.getElementById("voyaryLogo");
 
@@ -2190,7 +2217,14 @@ gsap.set(earth,{
     rotation:-4,
     transformOrigin:"50% 50%"
 });
-
+  
+gsap.set(atmosphere,{
+    opacity:0,
+    scale:.92,
+    rotation:-4,
+    transformOrigin:"50% 50%"
+});
+  
 gsap.set(plane,{
     opacity:0,
     x:0,
@@ -2206,7 +2240,6 @@ gsap.set(logo,{
     scale:.92,
     y:30
 });
-
 
 const tl=gsap.timeline({
 
@@ -2226,7 +2259,6 @@ opacity:1,
 duration:1
 });
 
-
 //==============================
 // 地球フェードイン
 //==============================
@@ -2236,42 +2268,53 @@ opacity:1,
 duration:.9
 },"-=0.4");
 
+tl.to(atmosphere,{
+opacity:1,
+duration:.9
+},"<");
 
 //==============================
 // 地球ゆっくり自転
 //==============================
 
-tl.to(earth,{
-rotation:2,
-scale:1.05,
-duration:8,
-ease:"none"
-},"<");
-
+tl.to(
+    [earth, atmosphere],
+    {
+        rotation:2,
+        scale:1.05,
+        duration:8,
+        ease:"none"
+    },
+"<");
 
 //==============================
 // 地球の裏から飛行機
 //==============================
 
-tl.set(plane,{
-opacity:1,
-x:-250,
-y:180,
-scale:.05,
-rotation:-12
+gsap.set(plane,{
+    opacity:0,
+    x:-170,
+    y:150,
+    scale:.015,
+    rotation:-12
 });
 
-
+tl.to(plane,{
+    opacity:1,
+    duration:.2
+});
+  
 //==============================
 // 地球の縁へ
 //==============================
 
 tl.to(plane,{
 
-x:-120,
-y:90,
+x:-90,
 
-scale:.18,
+y:70,
+
+scale:.10,
 
 rotation:-10,
 
@@ -2281,21 +2324,21 @@ ease:"power1.out"
 
 });
 
-
 //==============================
 // 地球前面へ
 //==============================
 
 tl.to(plane,{
 
-x:70,
-y:-10,
+x:60,
 
-scale:.55,
+y:-20,
 
-rotation:-7,
+scale:.45,
 
-duration:.7
+rotation:-6,
+
+duration:.6
 
 });
 
@@ -2306,14 +2349,15 @@ duration:.7
 
 tl.to(plane,{
 
-x:420,
+x:520,
+
 y:-180,
 
-scale:7,
+scale:10,
 
-rotation:4,
+rotation:6,
 
-filter:"blur(2px)",
+filter:"blur(3px)",
 
 duration:.45,
 
@@ -2328,16 +2372,15 @@ ease:"power3.in"
 
 tl.to(plane,{
 
-x:900,
+x:980,
+
 y:-420,
 
-scale:20,
-
-rotation:12,
+scale:24,
 
 filter:"blur(8px)",
 
-duration:.35,
+duration:.28,
 
 ease:"power4.in"
 
@@ -2348,31 +2391,31 @@ ease:"power4.in"
 // 一瞬白フラッシュ
 //==============================
 
-tl.to(splash,{
-
-background:"#ffffff",
-
-duration:.08
-
+tl.to("#flash",{
+opacity:1,
+duration:.05
 });
 
-tl.to(splash,{
-
-background:"#05070d",
-
+tl.to("#flash",{
+opacity:0,
 duration:.18
-
 });
 
 
 //==============================
-// 飛行機消える
+// 飛行機通過後
 //==============================
 
 tl.set(plane,{
 opacity:0
 });
 
+tl.to(logo,{
+opacity:1,
+scale:1,
+duration:1.2,
+ease:"power2.out"
+});
 
 //==============================
 // 地球を少しだけズーム
