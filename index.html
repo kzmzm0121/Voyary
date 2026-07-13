@@ -190,6 +190,18 @@ pointer-events:none;
 z-index:999;
 
 }
+
+#camera{
+
+position:absolute;
+
+inset:0;
+
+transform-origin:center center;
+
+will-change:transform;
+
+}
   
 </style>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -201,37 +213,21 @@ z-index:999;
 
 <div id="voyarySplash">
 
-    <!-- 星空 -->
-    <img
-        id="sky"
-        src="assets/sky.webp"
-        alt="Sky">
+    <div id="camera">
 
-    <!-- 地球 -->
-    <img
-        id="earth"
-        src="assets/earth.webp"
-        alt="Earth">
+        <img id="sky" src="assets/sky.webp">
 
-    <!-- 大気 -->
-    <img
-        id="atmosphere"
-        src="assets/earth-atmosphere.webp"
-        alt="Atmosphere">
+        <img id="earth" src="assets/earth.webp">
 
-    <!-- 飛行機 -->
-    <img
-        id="plane"
-        src="assets/plane.png"
-        alt="Plane">
+        <img id="atmosphere" src="assets/earth-atmosphere.webp">
 
-    <!-- ロゴ -->
-    <img
-        id="voyaryLogo"
-        src="assets/voyary-logo-cloud.webp"
-        alt="Voyary">
+        <img id="plane" src="assets/plane.png">
 
-    <!-- フラッシュ -->
+    </div>
+
+    <img id="voyaryLogo"
+         src="assets/voyary-logo-cloud.webp">
+
     <div id="flash"></div>
 
 </div>
@@ -2213,7 +2209,7 @@ gsap.registerPlugin(MotionPathPlugin);
 window.addEventListener("load",()=>{
 
 const splash=document.getElementById("voyarySplash");
-
+const camera=document.getElementById("camera");
 const sky=document.getElementById("sky");
 const earth=document.getElementById("earth");
 const atmosphere=document.getElementById("atmosphere");
@@ -2253,7 +2249,9 @@ gsap.set(plane,{
     scale:0.008,
     rotation:-20,
     filter:"blur(0px)",
-    transformOrigin:"50% 50%"
+    tran
+      
+      sformOrigin:"50% 50%"
 });
 
 gsap.set(logo,{
@@ -2270,6 +2268,10 @@ ease:"power2.inOut"
 
 });
 
+gsap.set(camera,{
+    scale:1
+});
+  
 //==================================================
 // Chapter 1
 // 星空
@@ -2299,6 +2301,16 @@ tl.to(
 "-=0.5"
 );
 
+  tl.to(camera,{
+
+scale:1.08,
+
+duration:6,
+
+ease:"none"
+
+},"<");
+  
 // 少しずつ近付く
 
 tl.to(
@@ -2532,33 +2544,28 @@ tl.fromTo(
     logo,
     {
         opacity:0,
-        scale:.92,
+        scale:.94,
         y:18
+        filter:"blur(6px)"
     },
     {
         opacity:1,
         scale:1,
         y:0,
-        duration:1.6,
+        filter:"blur(0px)",
+        duration:2.2,
         ease:"power2.out"
     }
 );
+tl.to(camera,{
 
-// 少し見せる
-tl.to({},{
-    duration:2.2
-});
+scale:1.1,
 
-// Splash終了
-tl.to(splash,{
-    opacity:0,
-    duration:1.2,
-    ease:"power2.out"
-});
+duration:1.8,
 
-tl.call(()=>{
-    splash.remove();
-});
+ease:"power1.out"
+
+},"<");
   
 });
   
