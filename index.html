@@ -2248,9 +2248,9 @@ gsap.set(atmosphere,{
   
 gsap.set(plane,{
     opacity:0,
-    x:0,
-    y:0,
-    scale:.04,
+    x:-180,
+    y:130,
+    scale:0.008,
     rotation:-20,
     filter:"blur(0px)",
     transformOrigin:"50% 50%"
@@ -2333,68 +2333,45 @@ tl.to(
 // 飛行機が裏側から現れる
 //==================================================
 
-gsap.set(plane,{
-
-    opacity:0,
-
-    x:-155,
-
-    y:115,
-
-    scale:.015,
-
-    rotation:-18,
-
-    filter:"blur(0px)"
-
-});
-
-// 地球の縁から鼻先だけ
-
+// 地球の裏から少しだけ見える
 tl.to(plane,{
-
     opacity:1,
-
-    scale:.03,
-
-    duration:.5
-
+    x:-150,
+    y:105,
+    scale:0.018,
+    rotation:-18,
+    duration:0.8,
+    ease:"power1.out"
 });
 
-// ゆっくり現れる
-
+// 機首だけ出る
 tl.to(plane,{
-
-    x:-120,
-
-    y:90,
-
-    scale:.05,
-
+    x:-118,
+    y:82,
+    scale:0.032,
     rotation:-16,
-
     duration:1.2,
-
     ease:"power1.out"
-
 });
 
-// 機体が分かるくらいまで
-
+// 機体が見えてくる
 tl.to(plane,{
-
-    x:-65,
-
-    y:50,
-
-    scale:.09,
-
+    x:-70,
+    y:52,
+    scale:0.055,
     rotation:-13,
-
     duration:1.4,
-
     ease:"power1.out"
+});
 
+// 地球前面
+tl.to(plane,{
+    x:10,
+    y:8,
+    scale:0.095,
+    rotation:-9,
+    duration:1.6,
+    ease:"power1.inOut"
 });
 
 //==================================================
@@ -2440,188 +2417,149 @@ tl.to(plane,{
 
 //==================================================
 // Chapter5
-// 手前へ加速
+// 地球前面からこちらへ
 //==================================================
 
-// 少しずつ加速
-
+// 地球前面をゆっくり飛ぶ
 tl.to(plane,{
+    x:70,
+    y:5,
+    scale:0.18,
+    rotation:-8,
+    duration:1.6,
+    ease:"power1.inOut"
+});
 
-    x:150,
-    y:-35,
+// 少し近付く
+tl.to(plane,{
+    x:120,
+    y:-10,
+    scale:0.16,
+    rotation:-6,
+    duration:1.2,
+    ease:"power2.inOut"
+});
 
-    scale:.55,
-
+// 少し加速
+tl.to(plane,{
+    x:210,
+    y:-40,
+    scale:0.28,
     rotation:-3,
-
-    duration:.9,
-
+    duration:0.9,
     ease:"power2.in"
-
 });
 
-// こちらへ向き始める
-
+// カメラへ
 tl.to(plane,{
-
-    x:280,
-    y:-90,
-
-    scale:1.1,
-
+    x:360,
+    y:-95,
+    scale:0.55,
     rotation:0,
-
-    duration:.7,
-
-    ease:"power2.in"
-
+    filter:"blur(1px)",
+    duration:0.8,
+    ease:"power3.in"
 });
 
-// 一気に接近
-
+// 急接近
 tl.to(plane,{
-
-    x:520,
-    y:-180,
-
-    scale:3.5,
-
+    x:580,
+    y:-190,
+    scale:1.6,
     rotation:4,
-
     filter:"blur(2px)",
-
-    duration:.55,
-
-    ease:"power3.in"
-
+    duration:0.55,
+    ease:"power4.in"
 });
 
 // 画面を覆う
-
 tl.to(plane,{
-
-    x:1050,
-    y:-520,
-
-    scale:18,
-
+    x:980,
+    y:-420,
+    scale:6.5,
     rotation:8,
-
-    filter:"blur(8px)",
-
-    duration:.38,
-
+    filter:"blur(6px)",
+    duration:0.35,
     ease:"power4.in"
-
 });
 
+// 完全に画面外
+tl.to(plane,{
+    x:1500,
+    y:-720,
+    scale:18,
+    rotation:12,
+    filter:"blur(10px)",
+    duration:0.18,
+    ease:"power4.in"
+});
+  
 //==================================================
-// Chapter6
 // フラッシュ
 //==================================================
 
 tl.to("#flash",{
-
-    opacity:1,
-
-    duration:.05
-
+    opacity:0.85,
+    duration:0.08
 },"<");
 
 tl.to("#flash",{
-
     opacity:0,
-
-    duration:.18
-
+    duration:0.28
 });
 
-// 飛行機を消す
-
 tl.set(plane,{
-
     opacity:0
-
 });
 
 //==================================================
 // 地球だけ残る
 //==================================================
 
-tl.to({},{
-
-    duration:.35
-
-});
+tl.to([earth,atmosphere],{
+    scale:1.06,
+    rotation:3,
+    duration:0.8,
+    ease:"power2.out"
+},"<");
+  
 
 //==================================================
 // Voyary
 //==================================================
 
 tl.fromTo(
-
-logo,
-
-{
-
-    opacity:0,
-
-    x:-25,
-
-    y:15,
-
-    scale:.96
-
-},
-
-{
-
-    opacity:1,
-
-    x:0,
-
-    y:0,
-
-    scale:1,
-
-    duration:1.8,
-
-    ease:"power2.out"
-
-}
-
+    logo,
+    {
+        opacity:0,
+        scale:.92,
+        y:18
+    },
+    {
+        opacity:1,
+        scale:1,
+        y:0,
+        duration:1.6,
+        ease:"power2.out"
+    }
 );
 
-//==================================================
 // 少し見せる
-//==================================================
-
 tl.to({},{
-
-    duration:2.0
-
+    duration:2.2
 });
 
-//==================================================
 // Splash終了
-//==================================================
-
 tl.to(splash,{
-
     opacity:0,
-
     duration:1.2,
-
     ease:"power2.out"
-
 });
 
 tl.call(()=>{
-
     splash.remove();
-
 });
-
+  
 });
   
 </script>
