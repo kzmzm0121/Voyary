@@ -39,133 +39,126 @@
 body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-height:100vh;-webkit-text-size-adjust:100%;font-weight:500;letter-spacing:0.01em;background-image:linear-gradient(var(--gd),#EDE8DF 0%,#F5F0E8 45%,#FDFBF7 100%);background-attachment:fixed}
 .app-wrap{max-width:680px;margin:0 auto;padding:0 0 100px}
 .header-sticky{position:sticky;top:0;z-index:20}
- 
-  /* ===========================
-   VOYARY Splash
-=========================== */
+
+/*=========================
+ Splash
+=========================*/
 
 #voyarySplash{
 
-    position:fixed;
+position:fixed;
+inset:0;
 
-    inset:0;
+overflow:hidden;
 
-    overflow:hidden;
+background:#04070d;
 
-    background:#05070d;
-
-    z-index:99999;
-
-}
-
-
-/* ---------- Notebook ---------- */
-
-#notebook{
-
-    position:absolute;
-
-    left:50%;
-
-    top:50%;
-
-    width:min(72vw,420px);
-
-    transform:translate(-50%,-50%);
-
-    z-index:50;
+z-index:99999;
 
 }
 
 
-/* ---------- Sky ---------- */
+/*=========================
+ Sky
+=========================*/
 
 #sky{
 
-    position:absolute;
+position:absolute;
 
-    inset:0;
+inset:0;
 
-    width:100%;
+width:100%;
 
-    height:100%;
+height:100%;
 
-    object-fit:cover;
+object-fit:cover;
 
-    opacity:0;
-
-    z-index:1;
+opacity:0;
 
 }
 
 
-/* ---------- Earth ---------- */
+/*=========================
+ Earth
+=========================*/
 
 #earth{
 
-    position:absolute;
+position:absolute;
 
-    left:50%;
+left:50%;
+top:50%;
 
-    top:50%;
+width:110vmin;
 
-    width:120vmin;
+transform:translate(-50%,-50%);
 
-    max-width:none;
-
-    transform:translate(-50%,-50%);
-
-    opacity:0;
-
-    z-index:2;
+opacity:0;
 
 }
 
 
-/* ---------- Plane ---------- */
+/*=========================
+ Plane
+=========================*/
 
 #plane{
 
-    position:absolute;
+position:absolute;
 
-    left:50%;
+left:50%;
+top:50%;
 
-    top:50%;
+width:100px;
 
-    width:90px;
+transform:translate(-50%,-50%);
 
-    transform:translate(-50%,-50%);
+opacity:0;
 
-    opacity:0;
-
-    z-index:30;
-
-    will-change:transform;
+will-change:transform;
 
 }
 
 
-/* ---------- Voyary Logo ---------- */
+/*=========================
+ Logo
+=========================*/
 
 #voyaryLogo{
 
-    position:absolute;
+position:absolute;
 
-    left:50%;
+left:50%;
+top:50%;
 
-    top:78%;
+width:min(65vw,500px);
 
-    width:min(70vw,520px);
+transform:translate(-50%,-50%);
 
-    transform:translateX(-50%);
-
-    opacity:0;
-
-    z-index:20;
-
-    pointer-events:none;
+opacity:0;
 
 }
+
+
+/*=========================
+ Flash
+=========================*/
+
+#flash{
+
+position:absolute;
+
+inset:0;
+
+background:white;
+
+opacity:0;
+
+pointer-events:none;
+
+}
+  
 </style>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/MotionPathPlugin.min.js"></script>
@@ -176,41 +169,23 @@ body{font-family:var(--font-b);background:var(--cream);color:var(--text1);min-he
 
 <div id="voyarySplash">
 
-    <!-- ノート -->
-    <img
-        id="notebook"
-        src="assets/voyary-icon.png"
-        alt="Voyary Notebook">
-   
-    <!-- 飛行機 -->
-    <img
-        id="plane"
-        src="assets/plane.png"
-        alt="Plane">
+    <img id="sky"
+         src="assets/sky.webp"
+         alt="Sky">
 
-    <!-- 宇宙背景 -->
-    <img
-        id="sky"
-        src="assets/sky.webp"
-        alt="Sky">
+    <img id="earth"
+         src="assets/earth.webp"
+         alt="Earth">
 
-    <!-- 地球 -->
-    <img
-        id="earth"
-        src="assets/earth.webp"
-        alt="Earth">
+    <img id="plane"
+         src="assets/plane.png"
+         alt="Plane">
 
-  c <!-- 飛行機 -->
-    <img
-        id="plane"
-        src="assets/plane.png"
-        alt="Plane">
+    <img id="voyaryLogo"
+         src="assets/voyary-logo-cloud.webp"
+         alt="Voyary">
 
-    <!-- 最後に表示されるロゴ -->
-    <img
-        id="voyaryLogo"
-        src="assets/voyary-logo-cloud.webp"
-        alt="Voyary">
+    <div id="flash"></div>
 
 </div>
 
